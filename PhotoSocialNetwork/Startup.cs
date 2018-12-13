@@ -38,7 +38,7 @@ namespace PhotoSocialNetwork
 
             services.AddDbContext<PhotoSocialNetworkContext>(options => options.UseSqlServer(
                 Configuration.GetConnectionString("Default")));
-            services.AddTransient<IStorage, EntityFrameworkStorage>();
+            services.AddTransient<IStorage, SQLEntityFrameworkStorage>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>

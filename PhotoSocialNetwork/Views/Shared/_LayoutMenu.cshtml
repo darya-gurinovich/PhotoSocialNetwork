@@ -1,0 +1,98 @@
+﻿@inject PhotoSocialNetwork.Models.Storage.IStorage storage
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var userName = User.Identity.Name;
+    var isAuthorized = userName == null ? false : true;
+
+    var info = !isAuthorized ? (photoPath: "/images/user-profile.jpg", name: "Not authorized") : storage.GetCurrentUserInfo(userName);
+
+    var isAdmin = false;
+    if (isAuthorized)
+    {
+        //isAdmin = storage.IsUserAdmin(userName);
+    }
+}
+
+<aside>
+    <div id="sidebar" class="nav-collapse ">
+        <ul class="sidebar-menu" id="nav-accordion">
+
+            <p class="centered">
+                <a href="/">
+                    <div style="width: 100%">
+                        <div style="width: 25%; margin: 0 auto;">
+                            <div style="width: 60px; height: 60px;">
+                                <img id="profileImg" class="img-circle" src=@info.photoPath style='height: 100%; width: 100%; object-fit: contain'>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </p>
+            <h5 class="centered" id="profileName">@info.name</h5>
+
+            @if (isAuthorized)
+            {
+                <li class="sub-menu">
+                    <a id="friendsSub" asp-action="Friends" asp-controller="Profile">
+                        <i class="fa"></i>
+                        <span id="friendsText">My Friends</span>
+                    </a>
+                </li>
+
+                <li class="sub-menu">
+                    <a id="reviewsSub" asp-action="Reviews" asp-controller="Profile">
+                        <i class="fa"></i>
+                        <span id="reviewsText">My Reviews</span>
+                    </a>
+                </li>
+            }
+
+            @*<li class="sub-menu">
+                    <a id="favFilmsSub">
+                        <i class="fa"></i>
+                        <span>Favourite Films</span>
+                    </a>
+                </li>
+
+                <li class="sub-menu">
+                    <a id="favActorsSub">
+                        <i class="fa"></i>
+                        <span>Favourite Actors</span>
+                    </a>
+                </li>*@
+
+            <li class="sub-menu">
+                <a id="searchSub" asp-controller="Search" asp-action="Index">
+                    <i class="fa"></i>
+                    <span id="searchText">Search</span>
+                </a>
+            </li>
+
+            @if (isAdmin)
+            {
+                <li class="sub-menu">
+                    <a id="adminSub" asp-controller="Admin" asp-action="Index">
+                        <i class="fa"></i>
+                        <span id="adminText">Administration</span>
+                    </a>
+                </li>
+
+            }
+
+        </ul>
+    </div>
+</aside>
+
+<section id="main-content">
+    <section class="wrapper">
+
+        <div class="row">
+            <div class="col-lg-12 main-chart">
+                @RenderBody()
+            </div>
+        </div>
+    </section>
+</section>
+
+

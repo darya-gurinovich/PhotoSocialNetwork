@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PhotoSocialNetwork.Models.Services;
+using PhotoSocialNetwork.ViewModels;
 using PhotoSocialNetwork.ViewModels.Account;
 using System;
 using System.Collections.Generic;
@@ -8,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace PhotoSocialNetwork.Models.Storage.EntityFramework
 {
-    public class EntityFrameworkStorage : IStorage
+    public class SQLEntityFrameworkStorage : IStorage
     {
         private readonly PhotoSocialNetworkContext context;
 
-        public EntityFrameworkStorage(PhotoSocialNetworkContext context)
+        public SQLEntityFrameworkStorage(PhotoSocialNetworkContext context)
         {
             this.context = context;
         }
@@ -44,6 +45,11 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
             return foundUser != null;
         }
 
+        public Users GetUser(string userName)
+        {
+            return context.Users.FromSql("SELECT * FROM Users WHERE Login = @p0 OR Email = @p0", parameters: new[] { userName }).FirstOrDefault();
+        } 
+
         public void AddUser(RegisterModel newUser)
         {
             var encryptedPassword = AuthenticationService.EncryptPassword(newUser.Password);
@@ -51,6 +57,26 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
             context.Database.ExecuteSqlCommand("CreateProfile @p0, @p1, @p2, @p3, @p4, @p5", 
                 parameters: new[] { newUser.Login, encryptedPassword, newUser.Email, newUser.Phone, newUser.Login, newUser.DateOfBirth.ToString() });
         }
+        
+        public ProfileModel GetProfileModel(string userName)
+        {
+            var profile = context.Profile.FromSql("SELECT * FROM Users, Profile WHERE Users.Id = Profile.UserId AND(Login = @p0 OR Email = @p0)",
+                parameters: new[] { userName }).FirstOrDefault();
+            var user = GetUser(userName);
 
+            if (profile == null) { return null; }
+
+            var profileModel = new ProfileModel(profile, user.Email, user.Phone);
+
+            return profileModel;
+        }
+
+        public (string photoPath, string name) GetCurrentUserInfo(string userName)
+        {
+           var profileModel = GetProfileModel(userName);
+           if (profileModel == null) return (photoPath: "", name: "");
+
+            return (photoPath: profileModel.PhotoPath, name: profileModel.Name);
+        }
     }
 }

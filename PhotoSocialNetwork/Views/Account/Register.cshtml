@@ -53,3 +53,10 @@
         <a asp-action="Login" asp-controller="Account">Return to Log In</a>
     </div>
 </div>
+
+<script>
+    let logoutButton = document.getElementById("logoutButton");
+    logoutButton.innerHTML = "Log In";
+    logoutButton.setAttribute("href", "/Account/Login");
+    document.body.style.backgroundColor = "#16212c";
+</script>

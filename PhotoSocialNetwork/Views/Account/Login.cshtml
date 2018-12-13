@@ -34,3 +34,10 @@
         <a asp-action="Register" asp-controller="Account">Sign up now</a>
     </div>
 </div>
+
+<script>
+    let logoutButton = document.getElementById("logoutButton");
+    logoutButton.innerHTML = "Sigh Up";
+    logoutButton.setAttribute("href", "/Account/Register");
+    document.body.style.backgroundColor = "#16212c";
+</script>

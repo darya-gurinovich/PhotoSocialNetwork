@@ -11,5 +11,7 @@ namespace PhotoSocialNetwork.Models.Storage
         bool IsUserAutenticationInfoCorrect(string login, string password);
         bool UserExists(string login, string email);
         void AddUser(RegisterModel newUser);
+
+        (string photoPath, string name) GetCurrentUserInfo(string userName);
     }
 }

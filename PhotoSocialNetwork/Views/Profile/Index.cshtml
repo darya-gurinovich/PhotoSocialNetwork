@@ -1,16 +1,16 @@
 ﻿
 @{
-    Layout = null;
+    Layout = "~/Views/Shared/_LayoutMenu.cshtml";
 }
 
-<!DOCTYPE html>
+Hello world!
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Index</title>
-</head>
-<body>
-    Hello world!
-</body>
-</html>
+<script>    
+    $(document).ready(function () {
+        $("#profileImg").css("background", "#47a7cc")
+
+        document.getElementById("selectedFile").onchange = function () {
+            document.getElementById("updatePhotoForm").submit();
+        };
+    })
+</script>
