@@ -1,4 +1,5 @@
-﻿using PhotoSocialNetwork.ViewModels.Account;
+﻿using PhotoSocialNetwork.ViewModels;
+using PhotoSocialNetwork.ViewModels.Account;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,21 @@ namespace PhotoSocialNetwork.Models.Storage
         bool IsUserAutenticationInfoCorrect(string login, string password);
         bool UserExists(string login, string email);
         void AddUser(RegisterModel newUser);
+
+        bool IsUserAdmin(string userName);
+        bool IsUserAdmin(int userId);
+        bool GiveAdminPermission(int userId, int permissionId);
+        bool RemoveAdminPermission(int userId, int permissionId);
+
+        ProfileModel GetProfileModel(string userName);
+        ProfileModel GetProfileModelById(int profileId);
+
+        List<ProfileModel> GetAllProfiles();
+        List<ProfileModel> GetAllProfilesWithoutCurrentUser(string userName);
+        List<ProfileModel> GetAllProfilesWithFilter(string filter);
+        List<ProfileModel> GetAllProfilesWithoutCurrentUserWithFilter(string userName, string filter);
+
+        bool CheckIfUsersAreFriends(string userName, int userId);
 
         (string photoPath, string name) GetCurrentUserInfo(string userName);
     }

@@ -1,16 +1,190 @@
-﻿
+﻿@model PhotoSocialNetwork.ViewModels.ProfileModel;
+
 @{
+    ViewData["Title"] = "Profile";
     Layout = "~/Views/Shared/_LayoutMenu.cshtml";
 }
 
-Hello world!
+<div class="col-md-6 col-md-offset-3 profileWrap">
+    <div class="text-center">
+        <h2>User Profile</h2>
+    </div>
+    @if (ViewBag.isCurrentUser)
+    {
+        <div class="col-md-12" style="padding: 10px">
+            <div class="text-center">
+                <a asp-action="Edit" asp-controller="Profile">
+                    <button class="btn btn-theme btn-block" type="button"><i class="fa fa-lock"></i>Change Profile</button>
+                </a>
+            </div>
+        </div>
+    }
+    <div class="profileInfo">
+        <div class="leftProfile">
+            <div class="avatarUserBox">
+                <img src=@Model.PhotoPath style='height: 100%; width: 100%; object-fit: contain'>
+            </div>
 
-<script>    
-    $(document).ready(function () {
-        $("#profileImg").css("background", "#47a7cc")
+            @if (ViewBag.isCurrentUser)
+            {
+                <div class="centerButtonContainer">
+                    <form id="updatePhotoForm" asp-action="UpdatePhoto" enctype="multipart/form-data" method="post">
+                        <input type="file" id="selectedFile" style="display: none;" name="photo" accept="image/*" />
+                        <input class="btn-theme" type="button" onclick="document.getElementById('selectedFile').click();" title="Update photo" value="Update photo">
+                    </form>
+                </div>
+            }
 
-        document.getElementById("selectedFile").onchange = function () {
-            document.getElementById("updatePhotoForm").submit();
-        };
-    })
+        </div>
+        <div class="form-group">
+            <p>
+                <b>NAME:</b>
+                <span id="name">
+                    @{
+                        if (Model != null)
+                        {
+                            @Model.Name;
+                        }
+                        else
+                        {
+                            @:No information
+                        }
+                    }
+                </span>
+            </p>
+            <p>
+                <b>DATE OF BIRTH:</b>
+                @{
+                    if (Model != null)
+                    {
+                        @Model.DateOfBirth.ToShortDateString()
+                    }
+                    else
+                    {
+                        @:No information
+                    }
+                }
+            </p>
+            <p>
+                <b>EMAIL:</b>
+                @{
+                    if (Model != null)
+                    {
+                        @Model.Email;
+                    }
+                    else
+                    {
+                        @:No information
+                    }
+                }
+            </p>
+            <p>
+                <b>PHONE:</b>
+                @{
+                    if (Model != null)
+                    {
+                        @Model.Phone;
+                    }
+                    else
+                    {
+                        @:No information
+                    }
+                }
+            </p>
+            @if (!ViewBag.isCurrentUser)
+            {
+                <div id="friendsContainer">
+                    @if (ViewBag.areFriends)
+                    {
+                        <a href="#" onclick="removeFriend(@Model.UserId)">Remove from Friends</a>
+                    }
+                    else
+                    {
+                        <a href="#" onclick="addFriend(@Model.UserId)">Add to Friends</a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    @if (ViewBag.isCurrentUser) {
+        <text>
+            $(document).ready(function () {
+                $("#profileImg").css("background", "#47a7cc")
+
+                document.getElementById("selectedFile").onchange = function () {
+                    document.getElementById("updatePhotoForm").submit();
+                };
+            })
+        </text>
+    }
+
+    function addFriend(id) {
+        $.ajax({
+            url: '/api/friendship/' + id,
+            type: 'PUT',
+            success: function (result) {
+                updateDataToRemoveFriend()
+
+                var friendName = document.getElementById('name').innerText
+                Push.create("A Friend was added", {
+                    body: friendName + " is your friend now",
+                    timeout: 3000,
+                    onClick: function () {
+                        window.focus();
+                        this.close();
+                    }
+                });
+            },
+            error: function (error) {
+                switch (error.status) {
+                    case 401:
+                        alert("You should be authorized to be able to add friend")
+                }
+            }
+        });
+    }
+
+    function removeFriend(id) {
+        $.ajax({
+            url: '/api/friendship/' + id,
+            type: 'DELETE',
+            success: function (result) {
+                console.log(result)
+                updateDataToAddFriend();
+
+                var friendName = document.getElementById('name').innerText
+                Push.create("A Friend was removed", {
+                    body: friendName + " is not longer your friend",
+                    timeout: 2000,
+                    onClick: function () {
+                        window.focus();
+                        this.close();
+                    }
+                });
+            },
+            error: function (error) {
+                switch (error.status) {
+                    case 401:
+                        alert("You should be authorized to be able to remove friend")
+                }
+            }
+        });
+    }
+
+    function updateDataToAddFriend() {
+        $('#friendsContainer').empty();
+
+        $('<a href="#" onclick="addFriend(' + @Model.UserId + ')">Add to Friends</a>').appendTo($('#friendsContainer'));
+    }
+
+    function updateDataToRemoveFriend() {
+        $('#friendsContainer').empty();
+
+        $('<a href="#" onclick="removeFriend(' + @Model.UserId + ')">Remove from Friends</a>').appendTo($('#friendsContainer'));
+    }
 </script>
+
+

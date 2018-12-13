@@ -1,0 +1,48 @@
+﻿@using PhotoSocialNetwork.ViewModels
+@model PhotoSocialNetwork.ViewModels.TabViewModel
+
+@{
+    ViewData["Title"] = "Administration";
+    Layout = "~/Views/Shared/_LayoutMenu.cshtml";
+
+    var action = "";
+    switch (Model.ActiveTab)
+    {
+        case Tab.Users:
+            action = "users()";
+            break;
+    }
+}
+
+<div class="col-md-6 col-md-offset-3 profileWrap">
+    <div class="text-center">
+        <h2>Administration</h2>
+
+        <ul id="navbar" class="nav nav-tabs" style="margin-top: 20px!important; margin-bottom:20px">
+            <li><a class="@(Model.ActiveTab == Tab.Users ? "btn active" : "btn tab")" asp-route-tabname="Users" asp-action="SwitchTabs">Users</a></li>
+        </ul>
+
+        <input id="filter" type="text" onkeyup="@action" class="filterBar" />
+
+        @switch (Model.ActiveTab)
+        {
+            case Tab.Users:
+                @await Component.InvokeAsync("PhotoSocialNetwork.ViewComponents.Admin.Users");
+                break;
+        }
+
+
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#adminSub").css("background", "#47a7cc")
+        $("#adminText").css("color", "white")
+    })
+
+    function users() {
+        var container = $("#usersContainer");
+        $.get("/Admin/UsersComponent?filter=" + $("#filter").val(), function (data) { container.html(data); });
+    }
+</script>

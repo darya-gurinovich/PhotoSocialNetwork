@@ -66,9 +66,20 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
 
             if (profile == null) { return null; }
 
-            var profileModel = new ProfileModel(profile, user.Email, user.Phone);
+            return new ProfileModel(profile, user.Email, user.Phone);            
+        }
 
-            return profileModel;
+        public ProfileModel GetProfileModelById(int profileId)
+        {
+            var profile = context.Profile.FromSql("SELECT * FROM Profile WHERE Profile.UserId = @p0",
+                profileId).FirstOrDefault();
+
+            if (profile == null) { return null; }
+
+            var user = context.Users.FromSql("SELECT * FROM Users WHERE Users.Id = @p0",
+                profile.UserId).FirstOrDefault();
+
+            return new ProfileModel(profile, user.Email, user.Phone);
         }
 
         public (string photoPath, string name) GetCurrentUserInfo(string userName)
@@ -77,6 +88,133 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
            if (profileModel == null) return (photoPath: "", name: "");
 
             return (photoPath: profileModel.PhotoPath, name: profileModel.Name);
+        }
+
+        public bool IsUserAdmin(string userName)
+        {
+            var user = GetUser(userName);
+            var permissions = context.UserAccessRights.FromSql("SELECT * FROM UserAccessRights WHERE UserAccessRights.UserId = @p0",
+                user.Id).FirstOrDefault();
+
+            return permissions != null ? true : false;
+        }
+
+        public bool IsUserAdmin(int userId)
+        {
+            var permissions = context.UserAccessRights.FromSql("SELECT * FROM UserAccessRights WHERE UserAccessRights.UserId = @p0", 
+                userId).FirstOrDefault();
+
+            return permissions != null ? true : false;
+        }
+
+        public bool GiveAdminPermission(int userId, int permissionId)
+        {
+            try
+            {
+                context.Database.ExecuteSqlCommand("AddUserAccessRightById @p0, @p1",
+                    userId, permissionId );
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool RemoveAdminPermission(int userId, int permissionId)
+        {
+            try
+            {
+                context.Database.ExecuteSqlCommand("RemoveAccessRight @p0, @p1",
+                    userId, permissionId );
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public List<ProfileModel> GetAllProfiles()
+        {
+            var profiles = new List<ProfileModel>();
+            foreach (var user in Users)
+            {
+                var profile = context.Profile.FromSql("SELECT * FROM Profile WHERE Profile.UserId = @p0",
+                    user.Id).FirstOrDefault();
+
+                if (profile != null)
+                    profiles.Add(new ProfileModel(profile, user.Email, user.Phone));
+            }
+
+            return profiles;
+        }
+
+        public List<ProfileModel> GetAllProfilesWithoutCurrentUser(string userName)
+        {
+            var users = context.Users.FromSql("SELECT * FROM Users WHERE NOT (Login = @p0 OR Email = @p0)", 
+                parameters: new[] { userName });
+
+            var profiles = new List<ProfileModel>();
+            foreach (var user in users)
+            {
+                var profile = context.Profile.FromSql("SELECT * FROM Profile WHERE Profile.UserId = @p0",
+                    user.Id).FirstOrDefault();
+
+                if (profile != null)
+                    profiles.Add(new ProfileModel(profile, user.Email, user.Phone));
+            }
+
+            return profiles;
+        }
+
+        public List<ProfileModel> GetAllProfilesWithFilter(string filter)
+        {
+            var profiles = new List<ProfileModel>();
+            foreach (var user in Users)
+            {
+                var profile = context.Profile.FromSql("SELECT * FROM Profile WHERE Profile.UserId = @p0 AND Profile.Name LIKE @p1",
+                    user.Id, filter + "%").FirstOrDefault();
+
+                if (profile != null)
+                    profiles.Add(new ProfileModel(profile, user.Email, user.Phone));
+            }
+
+            return profiles;
+        }
+
+        public List<ProfileModel> GetAllProfilesWithoutCurrentUserWithFilter(string userName, string filter)
+        {
+            var users = context.Users.FromSql("SELECT * FROM Users WHERE NOT (Login = @p0 OR Email = @p0)",
+                parameters: new[] { userName });
+
+            var profiles = new List<ProfileModel>();
+            foreach (var user in users)
+            {
+                var profile = context.Profile.FromSql("SELECT * FROM Profile WHERE Profile.UserId = @p0 AND Profile.Name LIKE @p1",
+                    user.Id, filter + "%").FirstOrDefault();
+
+                if (profile != null)
+                    profiles.Add(new ProfileModel(profile, user.Email, user.Phone));
+            }
+
+            return profiles;
+        }
+
+        public bool CheckIfUsersAreFriends(string userName, int userId)
+        {
+            var user = GetUser(userName);
+            if (user == null) return false;
+
+            var usersRelationship = context.UserRelationships.FromSql("SELECT UR.UserRelationshipId, UR.UserRelationshipStatusId," +
+                "UR.MainUserId, UR.DependentUserId FROM UserRelationships UR, UserRelationshipStatus URS " +
+                "WHERE ((UR.MainUserId = @p0 AND UR.DependentUserId = @p1) OR (UR.DependentUserId = @p0 AND UR.MainUserId = @p1)) " +
+                "AND UR.UserRelationshipStatusId = URS.UserRelationshipStatusId AND URS.UserRelationshipStatusName = 'Friend'", userId, user.Id).FirstOrDefault();
+
+            return usersRelationship == null ? false : true;
+
         }
     }
 }

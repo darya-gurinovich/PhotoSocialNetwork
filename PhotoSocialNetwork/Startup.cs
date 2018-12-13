@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using PhotoSocialNetwork.Filters;
 using PhotoSocialNetwork.Models;
 using PhotoSocialNetwork.Models.Storage;
 using PhotoSocialNetwork.Models.Storage.EntityFramework;
@@ -45,6 +47,9 @@ namespace PhotoSocialNetwork
                 {
                     options.LoginPath = new PathString("/Account/Login");
                 });
+
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<CheckAdminFilter>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
