@@ -1,0 +1,183 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification\ 
+for details on configuring this project to bundle and minify static web assets. */
+body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Wrapping element */
+/* Set some basic padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Carousel */
+.carousel-caption p {
+    font-size: 20px;
+    line-height: 1.4;
+}
+
+/* Make .svg files in the carousel display properly in older browsers */
+.carousel-inner .item img[src$=".svg"] {
+    width: 100%;
+}
+
+/* QR code generator */
+#qrCode {
+    margin: 15px;
+}
+
+/* Hide/rearrange for smaller screens */
+@media screen and (max-width: 767px) {
+    /* Hide captions */
+    .carousel-caption {
+        display: none;
+    }
+}
+
+.profileWrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.profileInfo {
+    display: flex;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    justify-content: center;
+}
+
+.avatarUserBox {
+    border: 5px solid #FFFFFF;
+    box-shadow: 0px 1px 2px #999999;
+    width: 190px;
+    height: 190px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.smallAvatarUserBox {
+    border: 5px solid #FFFFFF;
+    box-shadow: 0px 1px 2px #999999;
+    width: 110px;
+    height: 110px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.leftProfile {
+    margin-right: 50px;
+}
+
+.centerButtonContainer {
+    text-align: center;
+}
+
+.availableSpaceInput {
+    width: 100%
+}
+
+.active {
+    background: rgb(71, 167, 204);
+    color: white;
+}
+
+.tab {
+    background: #424a5d;
+    color: white;
+}
+
+.filterBar {
+    width: 100%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.smallProfileInfo {
+    display: flex;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    justify-content: center;
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: #424a5d;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: #424a5d;
+    margin-top: 15px;
+    background: #ddd;
+}
+
+.validation {
+    color: darkred;
+}
+
+.createButton {
+    margin-bottom: 20px;
+    width: 150px;
+    height: 40px;
+}
+
+.reviewProfilePhoto {
+    border: 5px #ccc solid;
+    float: left;
+    margin: 0 15px 15px 0;
+}
+
+.reviewDate {
+    background: #ccc;
+    width: 157px;
+    color: #fff;
+    font-family: tahoma,verdana;
+    font-size: 11px;
+    text-align: center;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 4px 0 5px 0;
+}
+
+.review {
+    position: relative;
+    color: #333;
+    padding: 15px;
+    background: #ddd;
+    margin-bottom: 15px;
+}
+
+.good {
+    background: #daf1db;
+}
+
+.bad {
+    background: #ffe3e3;
+}
+
+.reviewInput {
+    width: 90%;
+    margin: 10px;
+    resize: none;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.reviewInputContainer {
+    padding: 15px;
+    background: #ddd;
+    margin-bottom: 20px;
+}
+
+.reviewButton {
+    background: rgb(71, 167, 204);
+    color: white;
+    float: right;
+}
+
+#filmActorsContainer {
+    margin-bottom: 10px
+}

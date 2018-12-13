@@ -1,0 +1,55 @@
+﻿
+@{
+    ViewData["Title"] = "Register";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model PhotoSocialNetwork.ViewModels.Account.RegisterModel
+
+<div class="login-wrap">
+
+    <form class="form-login" style="margin:70px auto 0" asp-action="Register" asp-controller="Account" asp-anti-forgery="true">
+
+        <h2 class="form-login-heading">Registration</h2>
+
+        <div class="login-wrap">
+            <div class="validation" asp-validation-summary="ModelOnly"></div>
+            <div class="form-group">
+                <label asp-for="Login">Login: </label><br />
+                <input class="availableSpaceInput" type="text" asp-for="Login" />
+                <span asp-validation-for="Login" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Email">Email: </label><br />
+                <input class="availableSpaceInput" type="text" asp-for="Email" />
+                <span asp-validation-for="Email" />
+            </div>
+            <div class="form-group">
+                <label asp-for="DateOfBirth">Date Of Birth: </label><br />
+                <input class="availableSpaceInput" type="date" asp-for="DateOfBirth" />
+                <span asp-validation-for="DateOfBirth" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Phone">Phone: </label><br />
+                <input class="availableSpaceInput" asp-for="Phone" />
+                <span asp-validation-for="Phone" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Password">Password: </label><br />
+                <input class="availableSpaceInput" asp-for="Password" />
+                <span asp-validation-for="Password" />
+            </div>
+            <div class="form-group">
+                <label asp-for="ConfirmPassword">Confirm Password: </label><br />
+                <input class="availableSpaceInput" asp-for="ConfirmPassword" />
+                <span asp-validation-for="ConfirmPassword" />
+            </div>
+            <div class="form-group centerButtonContainer">
+                <input class="btn" type="submit" value="Sign Up" />
+            </div>
+        </div>
+    </form>
+    <div class="registration">
+        <a asp-action="Login" asp-controller="Account">Return to Log In</a>
+    </div>
+</div>
