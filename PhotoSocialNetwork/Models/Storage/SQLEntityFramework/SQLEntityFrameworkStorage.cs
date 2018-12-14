@@ -2,6 +2,7 @@
 using PhotoSocialNetwork.Models.Services;
 using PhotoSocialNetwork.ViewModels;
 using PhotoSocialNetwork.ViewModels.Account;
+using PhotoSocialNetwork.ViewModels.Logs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -280,6 +281,25 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
         public List<BlockingStatus> GetBlockingStatuses()
         {
             return context.BlockingStatus.FromSql("SELECT * FROM BlockingStatus").ToList();
+        }
+
+        public List<UserBlockingLogViewModel> GetUserBlockingLogs()
+        {
+            var logs = context.UserBlockingLogs.FromSql("SELECT * FROM UserBlockingLogs ORDER BY BlockingDate DESC");
+
+            var logsModels = new List<UserBlockingLogViewModel>();
+            foreach (var log in logs)
+            {
+                var user = GetUser(log.BlockedUserId);
+                var blockedByUser = log.BlockedByUserId == null ? null : GetUser(log.BlockedByUserId.Value);
+                var blockingStatus = context.BlockingStatus.FromSql("SELECT * FROM BlockingStatus BS WHERE BS.BlockingStatusId = @p0", log.BlockingStatusId).FirstOrDefault();
+                
+                if (blockingStatus == null) continue;
+
+                logsModels.Add(new UserBlockingLogViewModel(user.Login, blockingStatus.BlockingName, blockedByUser == null ? "" : blockedByUser.Login, log.BlockingDate));
+            }
+
+            return logsModels;
         }
         #endregion
     }

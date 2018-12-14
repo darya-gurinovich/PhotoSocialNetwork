@@ -17,6 +17,15 @@
         case Tab.PostsBlockings:
             action = "postsBlockings()";
             break;
+        case Tab.UserRegistrationLogs:
+            action = "userRegistrationLogs()";
+            break;
+        case Tab.PostBlockingLogs:
+            action = "postBlockingLogs()";
+            break;
+        case Tab.UserBlockingLogs:
+            action = "userBlockingLogs()";
+            break;
     }
 }
 
@@ -28,6 +37,10 @@
             <li><a class="@(Model.ActiveTab == Tab.UsersPermissions ? "btn active" : "btn tab")" asp-route-tabname="UsersPermissions" asp-action="SwitchTabs">Users Permissions</a></li>
             <li><a class="@(Model.ActiveTab == Tab.UsersBlockings ? "btn active" : "btn tab")" asp-route-tabname="UsersBlockings" asp-action="SwitchTabs">Users Blockings</a></li>
             <li><a class="@(Model.ActiveTab == Tab.PostsBlockings ? "btn active" : "btn tab")" asp-route-tabname="PostsBlockings" asp-action="SwitchTabs">Posts Blockings</a></li>
+            <li><a class="@(Model.ActiveTab == Tab.PostBlockingLogs ? "btn active" : "btn tab")" asp-route-tabname="PostBlockingLogs" asp-action="SwitchTabs">Post Blocking Logs</a></li>
+            <li><a class="@(Model.ActiveTab == Tab.UserBlockingLogs ? "btn active" : "btn tab")" asp-route-tabname="UserBlockingLogs" asp-action="SwitchTabs">User Blocking Logs</a></li>
+            <li><a class="@(Model.ActiveTab == Tab.UserRegistrationLogs ? "btn active" : "btn tab")" asp-route-tabname="UserRegistrationLogs" asp-action="SwitchTabs">User Registration Logs</a></li>
+
         </ul>
 
         <input id="filter" type="text" onkeyup="@action" class="filterBar" />
@@ -43,8 +56,16 @@
             case Tab.PostsBlockings:
                 @await Component.InvokeAsync("PhotoSocialNetwork.ViewComponents.Admin.PostsBlockings");
                 break;
+            case Tab.PostBlockingLogs:
+                @await Component.InvokeAsync("PhotoSocialNetwork.ViewComponents.Admin.PostBlockingLogs");
+                break;
+            case Tab.UserBlockingLogs:
+                @await Component.InvokeAsync("PhotoSocialNetwork.ViewComponents.Admin.UserBlockingLogs");
+                break;
+            case Tab.UserRegistrationLogs:
+                @await Component.InvokeAsync("PhotoSocialNetwork.ViewComponents.Admin.UserRegistrationLogs");
+                break;
         }
-
 
     </div>
 </div>
@@ -65,8 +86,23 @@
         $.get("/Admin/UsersBlockingsComponent?filter=" + $("#filter").val(), function (data) { container.html(data); });
     }
 
-    function usersPermissions() {
+    function postsBlockings() {
         var container = $("#postsBlockingsContainer");
         $.get("/Admin/PostBlockingsComponent?filter=" + $("#filter").val(), function (data) { container.html(data); });
+    }
+
+    function postBlockingsLogs() {
+        var container = $("#postsBlockingsLogsContainer");
+        $.get("/Admin/PostBlockingsLogsComponent?filter=" + $("#filter").val(), function (data) { container.html(data); });
+    }
+
+    function userBlockingsLogs() {
+        var container = $("#usersBlockingsContainer");
+        $.get("/Admin/UserBlockingsLogsComponent?filter=" + $("#filter").val(), function (data) { container.html(data); });
+    }
+
+    function userRegistrationLogs() {
+        var container = $("#userRegistrationLogsContainer");
+        $.get("/Admin/UserRegistrationLogsComponent?filter=" + $("#filter").val(), function (data) { container.html(data); });
     }
 </script>

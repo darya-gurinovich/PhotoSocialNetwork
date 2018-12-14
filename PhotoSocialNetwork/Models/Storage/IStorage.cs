@@ -1,5 +1,6 @@
 ﻿using PhotoSocialNetwork.ViewModels;
 using PhotoSocialNetwork.ViewModels.Account;
+using PhotoSocialNetwork.ViewModels.Logs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,5 +37,7 @@ namespace PhotoSocialNetwork.Models.Storage
         bool UnblockUser(int userId);
         List<UserPermissions> GetUserPermissions();
         List<BlockingStatus> GetBlockingStatuses();
+
+        List<UserBlockingLogViewModel> GetUserBlockingLogs();
     }
 }

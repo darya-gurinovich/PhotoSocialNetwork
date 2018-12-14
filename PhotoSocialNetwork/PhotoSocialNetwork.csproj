@@ -14,6 +14,15 @@
     <Content Update="Views\Account\Register.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="Views\Admin\Components\UserRegistrationLogs\Default.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Admin\Components\UserBlockingLogs\Default.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Admin\Components\PostBlockingLogs\Default.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Views\Admin\Components\PostsBlockings\Default.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

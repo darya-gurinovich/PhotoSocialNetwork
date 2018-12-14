@@ -104,5 +104,20 @@ namespace PhotoSocialNetwork.Controllers
             return ViewComponent("PhotoSocialNetwork.ViewComponents.Admin.PostsBlockings", filter);
         }
 
+        public IActionResult PostBlockingLogsComponent(string filter)
+        {
+            return ViewComponent("PhotoSocialNetwork.ViewComponents.Admin.PostBlockingLogs", filter);
+        }
+
+        public IActionResult UserBlockingLogsComponent(string filter)
+        {
+            return ViewComponent("PhotoSocialNetwork.ViewComponents.Admin.UserBlockingLogs", filter);
+        }
+
+        public IActionResult UserRegistrationLogsComponent(string filter)
+        {
+            return ViewComponent("PhotoSocialNetwork.ViewComponents.Admin.UserRegistrationLogs", filter);
+        }
+
     }
 }

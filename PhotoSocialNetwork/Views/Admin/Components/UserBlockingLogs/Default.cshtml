@@ -1,0 +1,17 @@
+﻿@model List<PhotoSocialNetwork.ViewModels.Logs.UserBlockingLogViewModel>
+
+<div id="UserBlockingLogsContainer">
+    @if (Model.Count == 0)
+    {
+        <label>No logs were found</label>
+    }
+    @foreach (var log in Model)
+    {
+        <div style="background: #ddd; margin: 10px">
+            <p>Blocked User: @log.UserName</p>
+            <p>Status: @log.BlockingStatus</p>
+            <p>Blocked By User: @log.BlockedByUserName</p>
+            <p>Blocked Date: @log.BlockingDate</p>
+        </div>
+    }
+</div>
