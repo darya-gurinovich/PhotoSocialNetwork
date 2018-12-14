@@ -34,33 +34,33 @@
             @if (isAuthorized)
             {
                 <li class="sub-menu">
+                    <a id="reviewsSub" asp-action="Index" asp-controller="Feed">
+                        <i class="fa"></i>
+                        <span id="reviewsText">My Feed</span>
+                    </a>
+                </li>
+
+                <li class="sub-menu">
                     <a id="friendsSub" asp-action="Friends" asp-controller="Profile">
                         <i class="fa"></i>
                         <span id="friendsText">My Friends</span>
                     </a>
                 </li>
-
-                <li class="sub-menu">
-                    <a id="reviewsSub" asp-action="Reviews" asp-controller="Profile">
-                        <i class="fa"></i>
-                        <span id="reviewsText">My Reviews</span>
-                    </a>
-                </li>
             }
 
             @*<li class="sub-menu">
-                    <a id="favFilmsSub">
-                        <i class="fa"></i>
-                        <span>Favourite Films</span>
-                    </a>
-                </li>
+            <a id="favFilmsSub">
+                <i class="fa"></i>
+                <span>Favourite Films</span>
+            </a>
+        </li>
 
-                <li class="sub-menu">
-                    <a id="favActorsSub">
-                        <i class="fa"></i>
-                        <span>Favourite Actors</span>
-                    </a>
-                </li>*@
+        <li class="sub-menu">
+            <a id="favActorsSub">
+                <i class="fa"></i>
+                <span>Favourite Actors</span>
+            </a>
+        </li>*@
 
             <li class="sub-menu">
                 <a id="searchSub" asp-controller="Search" asp-action="Index">

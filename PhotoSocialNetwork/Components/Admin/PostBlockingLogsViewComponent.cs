@@ -6,11 +6,11 @@ using System.Linq;
 
 namespace PhotoSocialNetwork.ViewComponents.Admin
 {
-    public class PostBlockingLogsViewComponent : ViewComponent
+    public class PostsViewComponent : ViewComponent
     {
         private readonly IStorage _storage;
 
-        public PostBlockingLogsViewComponent(IStorage storage)
+        public PostsViewComponent(IStorage storage)
         {
             _storage = storage;
         }

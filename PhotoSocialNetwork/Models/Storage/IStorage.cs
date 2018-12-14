@@ -45,5 +45,9 @@ namespace PhotoSocialNetwork.Models.Storage
         List<BlockingStatus> GetBlockingStatuses();
 
         List<UserBlockingLogViewModel> GetUserBlockingLogs();
+
+        void CreatePost(PostViewModel postModel, string userName, IFormFile photo);
+        List<PostViewModel> GetUserPosts(string userName);
+        List<PostViewModel> GetUserPosts(int userId);
     }
 }
