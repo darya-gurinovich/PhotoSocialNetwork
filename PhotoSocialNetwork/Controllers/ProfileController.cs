@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PhotoSocialNetwork.Filters;
 using PhotoSocialNetwork.Models.Storage;
@@ -50,6 +52,43 @@ namespace PhotoSocialNetwork.Controllers
             }
 
             return NotFound();
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> UpdatePhoto(IFormFile photo)
+        {
+            var userName = User.Identity.Name;
+            var profileModel = _storage.UpdateProfilePhoto(userName, photo);
+
+            ViewBag.isCurrentUser = true;
+
+            return View("Index", profileModel);
+        }
+
+        [Authorize]
+        public IActionResult Edit()
+        {
+            var profile = _storage.GetProfileModel(User.Identity.Name);
+
+            return View(profile);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public IActionResult Edit(ProfileModel profileModel)
+        {
+            _storage.UpdateProfile(User.Identity.Name, profileModel);
+
+            return RedirectToAction("Index");
+        }
+
+        [Authorize]
+        public IActionResult Friends()
+        {
+            var friends = _storage.GetUserFriendsProfiles(User.Identity.Name);
+
+            return View("Friends", friends);
         }
 
     }

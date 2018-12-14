@@ -1,4 +1,5 @@
-﻿using PhotoSocialNetwork.ViewModels;
+﻿using Microsoft.AspNetCore.Http;
+using PhotoSocialNetwork.ViewModels;
 using PhotoSocialNetwork.ViewModels.Account;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,11 @@ namespace PhotoSocialNetwork.Models.Storage
         List<ProfileModel> GetAllProfilesWithoutCurrentUserWithFilter(string userName, string filter);
 
         bool CheckIfUsersAreFriends(string userName, int userId);
+
+        ProfileModel UpdateProfilePhoto(string userName, IFormFile photo);
+        int GetUserId(string userName);
+        void UpdateProfile(string userName, ProfileModel newProfile);
+        List<ProfileModel> GetUserFriendsProfiles(string userName);
 
         (string photoPath, string name) GetCurrentUserInfo(string userName);
 
