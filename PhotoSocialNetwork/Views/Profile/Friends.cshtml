@@ -1,0 +1,122 @@
+﻿@model List<PhotoSocialNetwork.ViewModels.ProfileModel>
+
+@{
+    ViewData["Title"] = "My Friends";
+    Layout = "~/Views/Shared/_LayoutMenu.cshtml";
+}
+
+<div class="col-md-6 col-md-offset-3 profileWrap">
+    <div class="text-center">
+        <h2>My Friends</h2>
+
+        @if (Model.Count == 0)
+        {
+            @:No friends were found.
+            <a asp-action="Index" asp-controller="Search">
+                Search friends to add them
+            </a>
+        }
+
+        else
+        {
+            <div id="numberOfFriendsContainer">
+                <label id="numberOfFriends" style="text-align:center">
+                    @if (Model.Count > 1)
+                    {
+                        @: You have @Model.Count
+                        @: friends
+                    }
+                    else
+                    {
+                        @:You have 1 friend
+                    }
+                </label>
+            </div>
+            <div id="friendsContainer">
+                @foreach (var friend in Model)
+                {
+                    <div class="smallProfileInfo">
+                        <div class="leftProfile">
+                            <div class="smallAvatarUserBox">
+                                <img src=@friend.PhotoPath style='height: 100%; width: 100%; object-fit: contain'>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <a id="name @friend.UserId" asp-controller="Profile" asp-action="Index" asp-route-profileId=@friend.ProfileId><b>@friend.Name</b></a>
+                            <p>@friend.DateOfBirth.ToShortDateString()</p>
+                            <p>@friend.Email</p>
+                            <a href="#" onclick="removeFriend(@friend.UserId)">Remove from Friends</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#friendsSub").css("background", "#47a7cc")
+        $("#friendsText").css("color", "white")
+    })
+
+    function removeFriend(id) {
+        $.ajax({
+            url: '/api/friendship/' + id,
+            type: 'DELETE',
+            success: function (result) {
+                console.log(result)
+
+                var friendName = document.getElementById('name ' + id).innerText
+                Push.create("A Friend was removed", {
+                    body: friendName + " is not longer your friend",
+                    timeout: 2000,
+                    onClick: function () {
+                        window.focus();
+                        this.close();
+                    }
+                });
+
+                getData();
+            }
+        });
+    }
+
+    function getCount(data) {
+        const el = $('#numberOfFriends');
+        if (data) {
+            if (data > 1) {
+                el.text('You have ' + data + ' friends');
+            }
+            else {
+                el.text('You have 1 friend');
+            }
+        } else {
+            el.html('No friends were found.');
+            const container = $('#numberOfFriendsContainer');
+            $('#numberOfFriendsContainer').append($('<a href="/Search/Index/"> Search friends to add them</a>'));
+        }
+    }
+    
+    function getData() {
+        $.ajax({
+            type: 'GET',
+            url: '/api/friendship/',
+            success: function (data) {
+                $('#friendsContainer').empty();
+                getCount(data.length);
+
+                $.each(data, function (key, item) {
+                    var dateFormat = (new Date(item.dateOfBirth)).toLocaleDateString()
+
+                    $('<div class="smallProfileInfo"><div class= "leftProfile"><div class="smallAvatarUserBox"><img src="'
+                        + item.photoPath + '" style="height: 100%; width: 100%; object-fit: contain"></div></div><div class="form-group"><a href="/Profile?profileId='
+                        + item.profileId + '" id="name ' + item.userId +'"><b>'
+                        + item.name + '</b></a><p>' + dateFormat + '</p><p>' + item.email + '</p><a href="#" onclick="removeFriend('
+                        + item.userId + ')">Remove from Friends</a></div></div >').appendTo($('#friendsContainer'));
+                });
+                
+            }
+        });
+    }
+</script>

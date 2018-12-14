@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using PhotoSocialNetwork.Models.Services;
 using PhotoSocialNetwork.ViewModels;
 using PhotoSocialNetwork.ViewModels.Account;
 using PhotoSocialNetwork.ViewModels.Logs;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -177,6 +179,85 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
 
         }
 
+        public Profile GetProfile(string name)
+        {
+            return context.Profile.FromSql("SELECT * FROM Users, Profile WHERE Users.Id = Profile.UserId AND(Login = @p0 OR Email = @p0)",
+                parameters: new[] { name }).FirstOrDefault();
+        }
+
+        public ProfileModel UpdateProfilePhoto(string userName, IFormFile photo)
+        {
+            var profile = context.Profile.FromSql("SELECT * FROM Users, Profile WHERE Users.Id = Profile.UserId AND(Login = @p0 OR Email = @p0)",
+                parameters: new[] { userName }).FirstOrDefault();
+            if (profile == null) return null;
+
+            var user = GetUser(userName);
+
+            if (photo == null || photo.Length <= 0) return new ProfileModel(profile, user.Email, user.Phone);
+
+            byte[] photoBytes = new byte[1];
+            using (var stream = new MemoryStream())
+            {
+                photo.CopyTo(stream);
+                photoBytes = stream.ToArray();
+            }
+
+            context.Database.ExecuteSqlCommand("UpdateProfilePhoto @p0, @p1", user.Id, photoBytes);
+            return new ProfileModel(profile, user.Email, user.Phone);
+        }
+
+        public int GetUserId(string userName)
+        {
+            var user = context.Users.FirstOrDefault(u => u.Login == userName || u.Email == userName);
+            return user == null ? 0 : user.Id;
+        }
+
+        public void UpdateProfile(string userName, ProfileModel newProfile)
+        {
+            var profile = GetProfile(userName);
+            if (profile == null) return;
+
+            var user = Users.FirstOrDefault(u => u.Login == userName || u.Email == userName);
+
+            profile.DateOfBirth = newProfile.DateOfBirth;
+            profile.Name = newProfile.Name;
+            user.Email = newProfile.Email;
+
+            context.Profile.Update(profile);
+            context.Users.Update(user);
+            context.SaveChanges();
+        }
+
+        private List<Users> GetUserFriends(string userName)
+        {
+            var user = Users.FirstOrDefault(u => u.Login == userName || u.Email == userName);
+
+            if (user == null) return null;
+
+            var friends = context.UserRelationships.Where(ur => ur.UserRelationshipId == 1 && ur.DependentUserId == user.Id).Select(ur => ur.MainUser).ToList();
+            friends.AddRange(context.UserRelationships.Where(ur => ur.UserRelationshipId == 1 && ur.MainUserId == user.Id).Select(ur => ur.DependentUser).ToList());
+
+            return friends;
+        }
+
+
+        public List<ProfileModel> GetUserFriendsProfiles(string userName)
+        {
+            var friends = GetUserFriends(userName);
+
+            var friendsProfiles = new List<ProfileModel>();
+            foreach (var friend in friends)
+            {
+                var friendProfile = context.Profile.FirstOrDefault(pr => pr.UserId == friend.Id);
+
+                if (friendProfile != null)
+                    friendsProfiles.Add(new ProfileModel(friendProfile, friend.Email, friend.Phone));
+            }
+
+            return friendsProfiles;
+
+        }
+
         #region Admin Methods
 
         public bool IsUserAdmin(string userName)
@@ -282,7 +363,7 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
         {
             return context.BlockingStatus.FromSql("SELECT * FROM BlockingStatus").ToList();
         }
-
+        
         public List<UserBlockingLogViewModel> GetUserBlockingLogs()
         {
             var logs = context.UserBlockingLogs.FromSql("SELECT * FROM UserBlockingLogs ORDER BY BlockingDate DESC");
