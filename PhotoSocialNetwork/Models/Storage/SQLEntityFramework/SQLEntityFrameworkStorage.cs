@@ -68,7 +68,7 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
 
         public Post GetPost(int postId)
         {
-            return context.Post.FromSql("SELECT * FROM Post WHERE PostId = @p0", parameters: new[] { postId }).FirstOrDefault();
+            return context.Post.FromSql("SELECT * FROM Post WHERE PostId = @p0", postId).FirstOrDefault();
         }
 
         public ProfileModel GetProfileModel(string userName)
@@ -378,6 +378,62 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
 
             return postsModels;
         }
+
+        public List<PostViewModel> GetPosts()
+        {
+            var posts = context.Post.FromSql("SELECT * FROM Post ORDER BY CreationDate DESC");
+
+            var postsModels = new List<PostViewModel>();
+            foreach (var post in posts)
+            {
+                var profile = GetProfileModelById(post.UserId);
+                postsModels.Add(new PostViewModel(post, profile));
+            }
+
+            return postsModels;
+        }
+
+        public bool CheckPostBlocking(int postId)
+        {
+            return GetPost(postId).IsBlocked;
+        }
+
+        public bool BlockPost(int postId, int statusId, string blockedByUserName)
+        {
+            try
+            {
+                var user = GetUser(blockedByUserName);
+
+                if (user != null)
+                    context.Database.ExecuteSqlCommand("BlockPost @p0, @p1, @p2",
+                        postId, statusId, user.Id);
+                else
+                    context.Database.ExecuteSqlCommand("BlockPost @p0, @p1",
+                        postId, statusId);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool UnblockPost(int postId)
+        {
+            try
+            {
+                context.Database.ExecuteSqlCommand("UnblockPost @p0", postId);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
         #endregion
 
         private byte[] GetImageFromFile(IFormFile image)

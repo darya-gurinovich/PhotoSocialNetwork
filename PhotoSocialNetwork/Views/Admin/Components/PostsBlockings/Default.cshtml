@@ -1,62 +1,103 @@
-﻿@model List<PhotoSocialNetwork.ViewModels.ProfileModel>
+﻿@model (List<PhotoSocialNetwork.ViewModels.PostViewModel> posts, List<BlockingStatus> blockings)
 
 @inject PhotoSocialNetwork.Models.Storage.IStorage storage
-<div id="postsBlockingsContainer">
-    Post
-@if (Model.Count == 0)
-{
-    <label>No users were found</label>
-}
-@foreach (var profile in Model)
-{
-    <div class="smallProfileInfo">
-        <div class="leftProfile">
-            <div class="smallAvatarUserBox">
-                <img src=@profile.PhotoPath style='height: 100%; width: 100%; object-fit: contain'>
+<div id="postsContainer">
+    @if (Model.posts.Count == 0)
+    {
+        <label>No posts were found</label>
+    }
+    @foreach (var profile in Model.posts)
+    {
+        <div class="row review profileInfo" style="width: 80%; margin: 0 auto; margin-bottom: 10px">
+            <div class="leftProfile">
+                <img id="posterImage" src="@profile.PhotoPath" style='width: 200px; height: 200px; object-fit: contain; display: block; margin: 0 auto;'>
             </div>
-        </div>
-        <div class="form-group">
-            <a id="name @profile.UserId" asp-controller="Profile" asp-action="Index" asp-route-profileId=@profile.ProfileId><b>@profile.Name</b></a>
-            <p>@profile.DateOfBirth.ToShortDateString()</p>
-            <p>@profile.Email</p>
-            @if (!storage.IsUserAdmin(profile.UserId))
+            <div class="form-group">
+                <label>@profile.Text</label>
+            </div>
+            <p>
+                @if (!storage.CheckPostBlocking(profile.PostId))
             {
-                <a id="permission_@profile.UserId" href="#" onclick="addAdminPermission(@profile.UserId)">Add Admin Permission</a>
+                <a id="blocking_@profile.PostId" onclick="passDataToModal(@profile.PostId)" href="#" data-toggle="modal" data-target="#blockUserModal">Block Post</a>
             }
             else
             {
-                <a id="permission_@profile.UserId" href="#" onclick="removeAdminPermission(@profile.UserId)">Remove Admin Permission</a>
+                <a id="blocking_@profile.PostId" href="#" onclick="unblockUser(@profile.PostId)">Unblock Post</a>
             }
+            </p>
+            
         </div>
-    </div>
-}
+    }
 </div>
 
+<div class="modal fade" id="blockUserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Block Post</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input id="postId" type="hidden" />
+                <select style="width: 100%;">
+                    @foreach (var blocking in Model.blockings)
+                    {
+                        @if (blocking.BlockingName != "Unblocked" && blocking.BlockingName != "Blocked for entering a wrong password several times")
+                        {
+                            <option value="@blocking.BlockingStatusId">@blocking.BlockingName</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="blockPost()">Block Post</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
-    function addAdminPermission(userId) {
+    function passDataToModal(postId) {
+        $(".modal-body #postId").val(postId);
+    }
+
+    function blockPost() {
+        var postId = $(".modal-body #postId").val();
+        $('#blockUserModal').modal('toggle');
+
         $.ajax({
-            url: '/Admin/AddAdminPermission?userId=' + userId + '&permissionId=1',
+            url: '/Admin/BlockPost?postId=' + postId + '&statusId=1',
             type: 'POST',
             success: function (result) {
-                if (!result) { alert("Error in adding the user permission"); return; }
+                if (!result) { alert("Error in blocking the post"); return; }
 
-                var action = document.getElementById("permission_" + userId)
-                action.onclick = function () { removeAdminPermission(userId); }
-                action.innerHTML = "Remove Admin Permission"
+                var action = document.getElementById("blocking_" + postId)
+                console.log(postId)
+                action.removeAttribute("data-toggle")
+                action.removeAttribute("data-target")
+                action.onclick = function () { unblockPost(postId); }
+                action.innerHTML = "Unblock Post"
+
             }
         });
     }
 
-    function removeAdminPermission(userId) {
+    function unblockPost(postId) {
         $.ajax({
-            url: '/Admin/RemoveAdminPermission?userId=' + userId + '&permissionId=1',
+            url: '/Admin/UnblockPost?postId=' + postId,
             type: 'POST',
             success: function (result) {
-                if (!result) { alert("Error in removing the user permission"); return; }
+                if (!result) { alert("Error in unbloking the post"); return; }
 
-                var action = document.getElementById("permission_" + userId)
-                action.onclick = function () { addAdminPermission(userId); }
-                action.innerHTML = "Add Admin Permission"
+                var action = document.getElementById("blocking_" + postId)
+                action.setAttribute('data-toggle', "modal")
+                action.setAttribute('data-target', "#blockUserModal")
+                action.onclick = function () { passDataToModal(postId); }
+                action.innerHTML = "Block Post"
             }
         });
     }

@@ -89,6 +89,18 @@ namespace PhotoSocialNetwork.Controllers
             return Json(responce);
         }
 
+        public IActionResult BlockPost(int postId, int statusId)
+        {
+            var responce = _storage.BlockPost(postId, statusId, User.Identity.Name);
+            return Json(responce);
+        }
+
+        public IActionResult UnblockPost(int postId)
+        {
+            var responce = _storage.UnblockPost(postId);
+            return Json(responce);
+        }
+
         public IActionResult UsersPermissionsComponent(string filter)
         {
             return ViewComponent("PhotoSocialNetwork.ViewComponents.Admin.UsersPermissions", filter);

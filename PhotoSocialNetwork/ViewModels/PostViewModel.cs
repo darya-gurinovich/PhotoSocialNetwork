@@ -8,6 +8,7 @@ namespace PhotoSocialNetwork.ViewModels
 {
     public class PostViewModel
     {
+        public int PostId { get; set; }
         public string Text { get; set; }
         public int ProfileId { get; set; }
         public string UserPhotoPath { get; set; }
@@ -19,6 +20,7 @@ namespace PhotoSocialNetwork.ViewModels
 
         public PostViewModel(Post post, ProfileModel profile)
         {
+            PostId = post.PostId;
             ProfileId = profile.ProfileId;
             Text = post.Text;
             UserName = profile.Name;
