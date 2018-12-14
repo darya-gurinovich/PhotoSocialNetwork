@@ -272,6 +272,15 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
             }
         }
 
+        public List<UserPermissions> GetUserPermissions()
+        {
+            return context.UserPermissions.FromSql("SELECT * FROM UserPermissions").ToList();
+        }
+
+        public List<BlockingStatus> GetBlockingStatuses()
+        {
+            return context.BlockingStatus.FromSql("SELECT * FROM BlockingStatus").ToList();
+        }
         #endregion
     }
 }

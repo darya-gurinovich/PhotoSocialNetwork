@@ -34,5 +34,7 @@ namespace PhotoSocialNetwork.Models.Storage
         bool CheckUserBlocking(int userId);
         bool BlockUser(int userId, int statusId, string blockedByUserName);
         bool UnblockUser(int userId);
+        List<UserPermissions> GetUserPermissions();
+        List<BlockingStatus> GetBlockingStatuses();
     }
 }

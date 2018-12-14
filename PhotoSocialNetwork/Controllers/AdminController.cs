@@ -51,6 +51,15 @@ namespace PhotoSocialNetwork.Controllers
                 case "PostsBlockings":
                     tab.ActiveTab = Tab.PostsBlockings;
                     break;
+                case "PostBlockingLogs":
+                    tab.ActiveTab = Tab.PostBlockingLogs;
+                    break;
+                case "UserBlockingLogs":
+                    tab.ActiveTab = Tab.UserBlockingLogs;
+                    break;
+                case "UserRegistrationLogs":
+                    tab.ActiveTab = Tab.UserRegistrationLogs;
+                    break;
             }
 
             return RedirectToAction("Index", tab);

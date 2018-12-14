@@ -15,6 +15,9 @@ namespace PhotoSocialNetwork.ViewModels
         Friends,
         UsersPermissions,
         UsersBlockings,
-        PostsBlockings
+        PostsBlockings,
+        UserBlockingLogs,
+        PostBlockingLogs,
+        UserRegistrationLogs
     }
 }

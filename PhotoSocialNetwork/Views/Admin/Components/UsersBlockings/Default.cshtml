@@ -1,38 +1,74 @@
-﻿@model List<PhotoSocialNetwork.ViewModels.ProfileModel>
+﻿@model (List<PhotoSocialNetwork.ViewModels.ProfileModel> profiles, List<BlockingStatus> blockings)
 
 @inject PhotoSocialNetwork.Models.Storage.IStorage storage
 <div id="usersBlockingsContainer">
-@if (Model.Count == 0)
-{
-    <label>No users were found</label>
-}
-@foreach (var profile in Model)
-{
-    <div class="smallProfileInfo">
-        <div class="leftProfile">
-            <div class="smallAvatarUserBox">
-                <img src=@profile.PhotoPath style='height: 100%; width: 100%; object-fit: contain'>
+    @if (Model.profiles.Count == 0)
+    {
+        <label>No users were found</label>
+    }
+    @foreach (var profile in Model.profiles)
+    {
+        <div class="smallProfileInfo">
+            <div class="leftProfile">
+                <div class="smallAvatarUserBox">
+                    <img src=@profile.PhotoPath style='height: 100%; width: 100%; object-fit: contain'>
+                </div>
+            </div>
+            <div class="form-group">
+                <a id="name @profile.UserId" asp-controller="Profile" asp-action="Index" asp-route-profileId=@profile.ProfileId><b>@profile.Name</b></a>
+                <p>@profile.DateOfBirth.ToShortDateString()</p>
+                <p>@profile.Email</p>
+                @if (!storage.CheckUserBlocking(profile.UserId))
+                {
+                    <a id="blocking_@profile.UserId" onclick="passDataToModal(@profile.UserId)" href="#" data-toggle="modal" data-target="#blockUserModal">Block User</a>
+                }
+                else
+                {
+                    <a id="blocking_@profile.UserId" href="#" onclick="unblockUser(@profile.UserId)">Unblock User</a>
+                }
             </div>
         </div>
-        <div class="form-group">
-            <a id="name @profile.UserId" asp-controller="Profile" asp-action="Index" asp-route-profileId=@profile.ProfileId><b>@profile.Name</b></a>
-            <p>@profile.DateOfBirth.ToShortDateString()</p>
-            <p>@profile.Email</p>
-            @if (!storage.CheckUserBlocking(profile.UserId))
-            {
-                <a id="blocking_@profile.UserId" href="#" onclick="blockUser(@profile.UserId)">Block User</a>
-            }
-            else
-            {
-                <a id="blocking_@profile.UserId" href="#" onclick="unblockUser(@profile.UserId)">Unblock User</a>
-            }
+    }
+</div>
+
+
+<div class="modal fade" id="blockUserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Block Users</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input id="userId" type="hidden" />
+                <select style="width: 100%;">
+                    @foreach (var blocking in Model.blockings)
+                    {
+                        @if(blocking.BlockingName != "Unblocked" && blocking.BlockingName != "Blocked for entering a wrong password several times") { 
+                            <option value="@blocking.BlockingStatusId">@blocking.BlockingName</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="blockUser()">Block User</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
-}
 </div>
 
 <script>
-    function blockUser(userId) {
+    function passDataToModal(userId) {
+        $(".modal-body #userId").val(userId);
+    }
+
+    function blockUser() {
+        var userId = $(".modal-body #userId").val();
+        $('#blockUserModal').modal('toggle');
+
         $.ajax({
             url: '/Admin/BlockUser?userId=' + userId + '&statusId=1',
             type: 'POST',
@@ -40,8 +76,11 @@
                 if (!result) { alert("Error in blocking the user"); return; }
 
                 var action = document.getElementById("blocking_" + userId)
+                action.removeAttribute("data-toggle")
+                action.removeAttribute("data-target")
                 action.onclick = function () { unblockUser(userId); }
-                action.innerHTML = "Unblock user"
+                action.innerHTML = "Unblock User"
+
             }
         });
     }
@@ -54,8 +93,10 @@
                 if (!result) { alert("Error in unbloking the user"); return; }
 
                 var action = document.getElementById("blocking_" + userId)
-                action.onclick = function () { unblockUser(userId); }
-                action.innerHTML = "Block User"
+                action.setAttribute('data-toggle', "modal")
+                action.setAttribute('data-target', "#blockUserModal")
+                action.onclick = function () { passDataToModal(userId); }
+                action.innerHTML = "Block User"                
             }
         });
     }

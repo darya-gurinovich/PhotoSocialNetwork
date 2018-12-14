@@ -34,7 +34,7 @@ namespace PhotoSocialNetwork.ViewComponents.Admin
                     users = _storage.GetAllProfilesWithFilter(filter);
             }
 
-            return View(users);
+            return View((users, _storage.GetBlockingStatuses()));
         }
     }
 }
