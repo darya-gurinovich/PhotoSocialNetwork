@@ -65,7 +65,12 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
             context.Database.ExecuteSqlCommand("CreateProfile @p0, @p1, @p2, @p3, @p4, @p5", 
                 parameters: new[] { newUser.Login, encryptedPassword, newUser.Email, newUser.Phone, newUser.Login, newUser.DateOfBirth.ToString() });
         }
-        
+
+        public Post GetPost(int postId)
+        {
+            return context.Post.FromSql("SELECT * FROM Post WHERE PostId = @p0", parameters: new[] { postId }).FirstOrDefault();
+        }
+
         public ProfileModel GetProfileModel(string userName)
         {
             var profile = context.Profile.FromSql("SELECT * FROM Users, Profile WHERE Users.Id = Profile.UserId AND(Login = @p0 OR Email = @p0)",
@@ -185,6 +190,12 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
                 parameters: new[] { name }).FirstOrDefault();
         }
 
+        public Profile GetProfile(int id)
+        {
+            return context.Profile.FromSql("SELECT * FROM Profile WHERE @p0 = Profile.UserId",
+                id).FirstOrDefault();
+        }
+
         public ProfileModel UpdateProfilePhoto(string userName, IFormFile photo)
         {
             var profile = context.Profile.FromSql("SELECT * FROM Users, Profile WHERE Users.Id = Profile.UserId AND(Login = @p0 OR Email = @p0)",
@@ -230,12 +241,12 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
 
         private List<Users> GetUserFriends(string userName)
         {
-            var user = Users.FirstOrDefault(u => u.Login == userName || u.Email == userName);
+            var user = GetUser(userName);
 
             if (user == null) return null;
 
-            var friends = context.UserRelationships.Where(ur => ur.UserRelationshipId == 1 && ur.DependentUserId == user.Id).Select(ur => ur.MainUser).ToList();
-            friends.AddRange(context.UserRelationships.Where(ur => ur.UserRelationshipId == 1 && ur.MainUserId == user.Id).Select(ur => ur.DependentUser).ToList());
+            var friends = context.UserRelationships.Where(ur => ur.UserRelationshipStatusId == 1 && ur.DependentUserId == user.Id).Select(ur => ur.MainUser).ToList();
+            friends.AddRange(context.UserRelationships.Where(ur => ur.UserRelationshipStatusId == 1 && ur.MainUserId == user.Id).Select(ur => ur.DependentUser).ToList());
 
             return friends;
         }
@@ -248,13 +259,91 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
             var friendsProfiles = new List<ProfileModel>();
             foreach (var friend in friends)
             {
-                var friendProfile = context.Profile.FirstOrDefault(pr => pr.UserId == friend.Id);
+                var friendProfile = GetProfile(friend.Id);
 
                 if (friendProfile != null)
                     friendsProfiles.Add(new ProfileModel(friendProfile, friend.Email, friend.Phone));
             }
 
             return friendsProfiles;
+
+        }
+
+        public bool AddFriend(string userName, int friendUserId)
+        {
+            if (!context.Users.Select(u => u.Id).Contains(friendUserId)) return false;
+
+            try
+            {
+                var user = GetUser(userName);
+                if (user == null) return false;
+
+                context.Database.ExecuteSqlCommand("AddUserRelationshipByIds @p0, @p1, @p2", user.Id, friendUserId, 1);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool RemoveFriend(string userName, int friendUserId)
+        {
+            if (!context.Users.Select(u => u.Id).Contains(friendUserId)) return false;
+
+            try
+            {
+                var user = GetUser(userName);
+                if (user == null) return false;
+
+                var userRelationship = context.UserRelationships.FirstOrDefault(ur => ur.UserRelationshipStatusId == 1 &&
+                (ur.MainUserId == user.Id && ur.DependentUserId == friendUserId) || (ur.DependentUserId == user.Id && ur.MainUserId == friendUserId));
+
+                if (userRelationship == null) return false;
+
+                context.Database.ExecuteSqlCommand("RemoveUserRelationship @p0, @p1", userRelationship.MainUserId, userRelationship.DependentUserId);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public List<ProfileModel> GetProfileModelsWithoutFriendsWithFilter(string userName, string filter)
+        {
+            var friends = GetUserFriends(userName);
+            var users = context.Users.Where(u => !(u.Login == userName || u.Email == userName) && !(friends.Contains(u)));
+
+            var profiles = new List<ProfileModel>();
+            foreach (var user in users)
+            {
+                var profile = context.Profile.FirstOrDefault(pr => pr.UserId == user.Id && pr.Name.StartsWith(filter));
+
+                if (profile != null)
+                    profiles.Add(new ProfileModel(profile, user.Email, user.Phone));
+            }
+
+            return profiles;
+        }
+
+        public List<ProfileModel> GetAllProfileModelsWithoutFriends(string userName)
+        {
+            var friends = GetUserFriends(userName);
+            var users = context.Users.Where(u => !(u.Login == userName || u.Email == userName) && !(friends.Contains(u)));
+
+            var profiles = new List<ProfileModel>();
+            foreach (var user in users)
+            {
+                var profile = context.Profile.FirstOrDefault(pr => pr.UserId == user.Id);
+
+                if (profile != null)
+                    profiles.Add(new ProfileModel(profile, user.Email, user.Phone));
+            }
+
+            return profiles;
 
         }
 
@@ -378,6 +467,40 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
                 if (blockingStatus == null) continue;
 
                 logsModels.Add(new UserBlockingLogViewModel(user.Login, blockingStatus.BlockingName, blockedByUser == null ? "" : blockedByUser.Login, log.BlockingDate));
+            }
+
+            return logsModels;
+        }
+
+        public List<PostBlockingLogViewModel> GetPostBlockingLogs()
+        {
+            var logs = context.PostBlockingLogs.FromSql("SELECT * FROM PostBlockingLogs ORDER BY BlockingDate DESC");
+
+            var logsModels = new List<PostBlockingLogViewModel>();
+            foreach (var log in logs)
+            {
+                var post = GetPost(log.BlockedPostId);
+                var blockedByUser = log.BlockedByUserId == null ? null : GetUser(log.BlockedByUserId.Value);
+                var blockingStatus = context.BlockingStatus.FromSql("SELECT * FROM BlockingStatus BS WHERE BS.BlockingStatusId = @p0", log.BlockingStatusId).FirstOrDefault();
+
+                if (blockingStatus == null) continue;
+
+                logsModels.Add(new PostBlockingLogViewModel(post.PostId, blockingStatus.BlockingName, blockedByUser == null ? "" : blockedByUser.Login, log.BlockingDate));
+            }
+
+            return logsModels;
+        }
+
+        public List<RegistrationLogViewModel> GetRegistrationLogs()
+        {
+            var logs = context.UserRegistrationLogs.FromSql("SELECT * FROM UserRegistrationLogs ORDER BY RegistrationDate DESC");
+
+            var logsModels = new List<RegistrationLogViewModel>();
+            foreach (var log in logs)
+            {
+                var user = GetUser(log.UserId);
+
+                logsModels.Add(new RegistrationLogViewModel(user.Login, log.RegistrationDate, log.Phone));
             }
 
             return logsModels;

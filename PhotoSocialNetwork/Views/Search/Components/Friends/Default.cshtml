@@ -1,0 +1,75 @@
+﻿@model List<PhotoSocialNetwork.ViewModels.ProfileModel>
+
+<div id="friendsContainer">
+@if (Model.Count == 0)
+{
+    <label>No users were found</label>
+}
+@foreach (var profile in Model)
+{
+    <div class="smallProfileInfo">
+        <div class="leftProfile">
+            <div class="smallAvatarUserBox">
+                <img src=@profile.PhotoPath style='height: 100%; width: 100%; object-fit: contain'>
+            </div>
+        </div>
+        <div class="form-group">
+            <a id="name @profile.UserId" asp-controller="Profile" asp-action="Index" asp-route-profileId=@profile.ProfileId><b>@profile.Name</b></a>
+            <p>@profile.DateOfBirth.ToShortDateString()</p>
+            <p>@profile.Email</p>
+            <a href="#" onclick="addFriend(@profile.UserId)">Add to Friends</a>
+        </div>
+    </div>
+}
+</div>
+
+<script>
+    function addFriend(id) {
+        $.ajax({
+            url: '/api/friendship/' + id,
+            type: 'PUT',
+            success: function (result) {
+                var friendName = document.getElementById('name ' + id).innerText
+                //Push.create("A Friend was added", {
+                //    body: friendName + " is your friend now",
+                //    timeout: 3000,
+                //    onClick: function () {
+                //        window.focus();
+                //        this.close();
+                //    }
+                //});
+
+                getData();
+            }
+        });
+    }
+
+    function getData() {
+        $.ajax({
+            type: 'POST',
+            url: '/Search/Friends/',
+            success: function (data) {
+                $('#friendsContainer').empty();
+                console.log(data)
+
+                if (data.length > 0) {
+                    $.each(data, function (key, item) {
+                        var dateFormat = (new Date(item.dateOfBirth)).toLocaleDateString()
+
+                        $('<div class="smallProfileInfo"><div class= "leftProfile"><div class="smallAvatarUserBox"><img src="'
+                            + item.photoPath + '" style="height: 100%; width: 100%; object-fit: contain"></div></div><div class="form-group"><a href="/Profile?profileId='
+                            + item.profileId + '" id="name ' + item.userId +'"><b>'
+                            + item.name + '</b></a><p>' + dateFormat + '</p><p>' + item.email + '</p><a href="#" onclick="addFriend('
+                            + item.userId + ')">Add to Friends</a></div></div >').appendTo($('#friendsContainer'));
+                    });
+                }
+
+                else {
+                    const container = $('#friendsContainer');
+                    $('#friendsContainer').append($('<label>No users were found</label>'));
+                }
+
+            }
+        });
+    }
+</script>

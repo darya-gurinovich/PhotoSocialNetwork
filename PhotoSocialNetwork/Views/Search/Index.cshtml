@@ -1,0 +1,37 @@
+﻿@using PhotoSocialNetwork.ViewModels
+@model PhotoSocialNetwork.ViewModels.TabViewModel
+
+@{
+    ViewData["Title"] = "Search";
+    Layout = "~/Views/Shared/_LayoutMenu.cshtml";
+}
+
+
+<div class="col-md-6 col-md-offset-3 profileWrap">
+    <div class="text-center">
+        <h2>Search</h2>
+
+        <ul id="navbar" class="nav nav-tabs" style="margin-top: 20px!important; margin-bottom:20px">
+            <li><a class="@(Model.ActiveTab == Tab.Friends ? "btn active" : "btn tab")" asp-route-tabname="Friends" asp-action="SwitchTabs">Friends</a></li>
+           
+        </ul>
+
+        <input id="filter" type="text" class="filterBar"/>
+
+        @switch (Model.ActiveTab) {
+                case Tab.Friends:
+                    @await Component.InvokeAsync("FilmShare.ViewComponents.Search.Friends");
+                    break;
+            }
+        
+
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#searchSub").css("background", "#47a7cc")
+        $("#searchText").css("color", "white")
+    })    
+</script>
+

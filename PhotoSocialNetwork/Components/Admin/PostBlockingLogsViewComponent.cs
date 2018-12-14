@@ -17,24 +17,7 @@ namespace PhotoSocialNetwork.ViewComponents.Admin
 
         public IViewComponentResult Invoke(string filter)
         {
-            List<ProfileModel> users;
-
-            var userName = User.Identity.Name;
-            if (filter == null || filter == "") {
-                if (userName != null)
-                    users = _storage.GetAllProfilesWithoutCurrentUser(User.Identity.Name);
-                else
-                    users = _storage.GetAllProfiles();
-            }
-            else
-            {
-                if (userName != null)
-                    users = _storage.GetAllProfilesWithoutCurrentUserWithFilter(User.Identity.Name, filter);
-                else
-                    users = _storage.GetAllProfilesWithFilter(filter);
-            }
-
-            return View(users);
+            return View(_storage.GetPostBlockingLogs());
         }
     }
 }

@@ -20,7 +20,8 @@ namespace PhotoSocialNetwork.ViewComponents.Admin
             List<ProfileModel> users;
 
             var userName = User.Identity.Name;
-            if (filter == null || filter == "") {
+            if (filter == null || filter == "")
+            {
                 if (userName != null)
                     users = _storage.GetAllProfilesWithoutCurrentUser(User.Identity.Name);
                 else

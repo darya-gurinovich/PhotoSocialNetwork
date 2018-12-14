@@ -35,6 +35,11 @@ namespace PhotoSocialNetwork.Models.Storage
         void UpdateProfile(string userName, ProfileModel newProfile);
         List<ProfileModel> GetUserFriendsProfiles(string userName);
 
+        bool AddFriend(string userName, int friendUserId);
+        bool RemoveFriend(string userName, int friendUserId);
+        List<ProfileModel> GetProfileModelsWithoutFriendsWithFilter(string userName, string filter);
+        List<ProfileModel> GetAllProfileModelsWithoutFriends(string userName);
+
         (string photoPath, string name) GetCurrentUserInfo(string userName);
 
         bool CheckUserBlocking(string userName);
@@ -45,5 +50,7 @@ namespace PhotoSocialNetwork.Models.Storage
         List<BlockingStatus> GetBlockingStatuses();
 
         List<UserBlockingLogViewModel> GetUserBlockingLogs();
+        List<PostBlockingLogViewModel> GetPostBlockingLogs();
+        List<RegistrationLogViewModel> GetRegistrationLogs();
     }
 }

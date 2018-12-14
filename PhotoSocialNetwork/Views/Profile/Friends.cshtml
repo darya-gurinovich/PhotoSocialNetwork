@@ -68,14 +68,14 @@
                 console.log(result)
 
                 var friendName = document.getElementById('name ' + id).innerText
-                Push.create("A Friend was removed", {
-                    body: friendName + " is not longer your friend",
-                    timeout: 2000,
-                    onClick: function () {
-                        window.focus();
-                        this.close();
-                    }
-                });
+                //Push.create("A Friend was removed", {
+                //    body: friendName + " is not longer your friend",
+                //    timeout: 2000,
+                //    onClick: function () {
+                //        window.focus();
+                //        this.close();
+                //    }
+                //});
 
                 getData();
             }
