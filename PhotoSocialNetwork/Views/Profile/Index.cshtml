@@ -106,6 +106,14 @@
             }
         </div>
     </div>
+
+    @if (!ViewBag.isCurrentUser)
+    {
+        <div style="margin-top:15px; border-top-width:1px; border-top-color: #424a5d; border-top-style: solid;">
+            <p style="margin-top:5px; font-size:22px;">User Posts:</p>
+            @await Component.InvokeAsync("PhotoSocialNetwork.ViewComponents.Feed.Posts", new { userId = Model.UserId })
+        </div>
+    }
 </div>
 
 <script>

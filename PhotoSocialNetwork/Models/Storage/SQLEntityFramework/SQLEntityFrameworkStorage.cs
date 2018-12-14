@@ -192,8 +192,7 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
 
         public Profile GetProfile(int id)
         {
-            return context.Profile.FromSql("SELECT * FROM Profile WHERE @p0 = Profile.UserId",
-                id).FirstOrDefault();
+            return context.Profile.FromSql("SELECT * FROM Profile WHERE Profile.UserId = @p0", id).FirstOrDefault();
         }
 
         public ProfileModel UpdateProfilePhoto(string userName, IFormFile photo)
@@ -213,6 +212,8 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
                 photoBytes = stream.ToArray();
             }
 
+            profile.Photo = photoBytes;
+
             context.Database.ExecuteSqlCommand("UpdateProfilePhoto @p0, @p1", user.Id, photoBytes);
             return new ProfileModel(profile, user.Email, user.Phone);
         }
@@ -225,18 +226,12 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
 
         public void UpdateProfile(string userName, ProfileModel newProfile)
         {
-            var profile = GetProfile(userName);
-            if (profile == null) return;
-
-            var user = Users.FirstOrDefault(u => u.Login == userName || u.Email == userName);
-
-            profile.DateOfBirth = newProfile.DateOfBirth;
-            profile.Name = newProfile.Name;
-            user.Email = newProfile.Email;
-
-            context.Profile.Update(profile);
-            context.Users.Update(user);
-            context.SaveChanges();
+            var user = GetUser(userName);
+            
+            context.Database.ExecuteSqlCommand("UpdateUserEmail @p0, @p1", user.Id, newProfile.Email);
+            context.Database.ExecuteSqlCommand("UpdateUserPhone @p0, @p1", user.Id, newProfile.Phone);
+            context.Database.ExecuteSqlCommand("UpdateProfileName @p0, @p1", user.Id, newProfile.Name);
+            context.Database.ExecuteSqlCommand("UpdateProfileDateOfBirth @p0, @p1", user.Id, newProfile.DateOfBirth);     
         }
 
         private List<Users> GetUserFriends(string userName)
@@ -268,7 +263,7 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
             return friendsProfiles;
 
         }
-
+        
         public bool AddFriend(string userName, int friendUserId)
         {
             if (!context.Users.Select(u => u.Id).Contains(friendUserId)) return false;
@@ -344,7 +339,56 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
             }
 
             return profiles;
+        }
 
+        #region Post Methods
+        public void CreatePost(PostViewModel postModel, string userName, IFormFile photo)
+        {
+            var image = GetImageFromFile(photo);
+            var user = GetUser(userName);
+            context.Database.ExecuteSqlCommand("CreatePost @p0, @p1, @p2", user.Id, image, postModel.Text);
+        }
+
+        public List<PostViewModel> GetUserPosts(int userId)
+        {
+            var user = GetUser(userId);
+            var posts = context.Post.FromSql("SELECT * FROM Post P WHERE P.UserId = @p0 ORDER BY CreationDate DESC", user.Id);
+
+            var postsModels = new List<PostViewModel>();
+            foreach (var post in posts)
+            {
+                var profile = GetProfileModelById(post.UserId);
+                postsModels.Add(new PostViewModel(post, profile));
+            }
+
+            return postsModels;
+        }
+
+        public List<PostViewModel> GetUserPosts(string userName)
+        {
+            var user = GetUser(userName);
+            var posts = context.Post.FromSql("SELECT * FROM Post P WHERE P.UserId = @p0 ORDER BY CreationDate DESC", user.Id);
+
+            var postsModels = new List<PostViewModel>();
+            foreach(var post in posts)
+            {
+                var profile = GetProfileModelById(post.UserId);
+                postsModels.Add(new PostViewModel(post, profile));
+            }
+
+            return postsModels;
+        }
+        #endregion
+
+        private byte[] GetImageFromFile(IFormFile image)
+        {
+            if (image == null || image.Length <= 0) return null;
+
+            using (var stream = new MemoryStream())
+            {
+                image.CopyTo(stream);
+                return stream.ToArray();
+            }
         }
 
         #region Admin Methods

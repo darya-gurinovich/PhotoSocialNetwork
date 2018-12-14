@@ -4,7 +4,7 @@ using PhotoSocialNetwork.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PhotoSocialNetwork.ViewComponents.Admin
+namespace PhotoSocialNetwork.ViewComponents.Feed
 {
     public class PostsViewComponent : ViewComponent
     {
@@ -15,9 +15,9 @@ namespace PhotoSocialNetwork.ViewComponents.Admin
             _storage = storage;
         }
 
-        public IViewComponentResult Invoke(string filter)
+        public IViewComponentResult Invoke(int userId)
         {
-            return View(_storage.GetPostBlockingLogs());
+            return View(_storage.GetUserPosts(userId));
         }
     }
 }
