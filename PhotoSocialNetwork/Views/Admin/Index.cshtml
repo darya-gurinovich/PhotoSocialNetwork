@@ -8,8 +8,14 @@
     var action = "";
     switch (Model.ActiveTab)
     {
-        case Tab.Users:
-            action = "users()";
+        case Tab.UsersPermissions:
+            action = "usersPermissions()";
+            break;
+        case Tab.UsersBlockings:
+            action = "usersBlockings()";
+            break;
+        case Tab.PostsBlockings:
+            action = "postsBlockings()";
             break;
     }
 }
@@ -19,15 +25,23 @@
         <h2>Administration</h2>
 
         <ul id="navbar" class="nav nav-tabs" style="margin-top: 20px!important; margin-bottom:20px">
-            <li><a class="@(Model.ActiveTab == Tab.Users ? "btn active" : "btn tab")" asp-route-tabname="Users" asp-action="SwitchTabs">Users</a></li>
+            <li><a class="@(Model.ActiveTab == Tab.UsersPermissions ? "btn active" : "btn tab")" asp-route-tabname="UsersPermissions" asp-action="SwitchTabs">Users Permissions</a></li>
+            <li><a class="@(Model.ActiveTab == Tab.UsersBlockings ? "btn active" : "btn tab")" asp-route-tabname="UsersBlockings" asp-action="SwitchTabs">Users Blockings</a></li>
+            <li><a class="@(Model.ActiveTab == Tab.PostsBlockings ? "btn active" : "btn tab")" asp-route-tabname="PostsBlockings" asp-action="SwitchTabs">Posts Blockings</a></li>
         </ul>
 
         <input id="filter" type="text" onkeyup="@action" class="filterBar" />
 
         @switch (Model.ActiveTab)
         {
-            case Tab.Users:
-                @await Component.InvokeAsync("PhotoSocialNetwork.ViewComponents.Admin.Users");
+            case Tab.UsersPermissions:
+                @await Component.InvokeAsync("PhotoSocialNetwork.ViewComponents.Admin.UsersPermissions");
+                break;
+            case Tab.UsersBlockings:
+                @await Component.InvokeAsync("PhotoSocialNetwork.ViewComponents.Admin.UsersBlockings");
+                break;
+            case Tab.PostsBlockings:
+                @await Component.InvokeAsync("PhotoSocialNetwork.ViewComponents.Admin.PostsBlockings");
                 break;
         }
 
@@ -41,8 +55,18 @@
         $("#adminText").css("color", "white")
     })
 
-    function users() {
-        var container = $("#usersContainer");
-        $.get("/Admin/UsersComponent?filter=" + $("#filter").val(), function (data) { container.html(data); });
+    function usersPermissions() {
+        var container = $("#usersPermissionsContainer");
+        $.get("/Admin/UsersPermissionsComponent?filter=" + $("#filter").val(), function (data) { container.html(data); });
+    }
+
+    function usersBlockings() {
+        var container = $("#usersBlockingsContainer");
+        $.get("/Admin/UsersBlockingsComponent?filter=" + $("#filter").val(), function (data) { container.html(data); });
+    }
+
+    function usersPermissions() {
+        var container = $("#postsBlockingsContainer");
+        $.get("/Admin/PostBlockingsComponent?filter=" + $("#filter").val(), function (data) { container.html(data); });
     }
 </script>

@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using PhotoSocialNetwork.Filters;
 using PhotoSocialNetwork.Models.Storage;
 using PhotoSocialNetwork.ViewModels;
 
 namespace PhotoSocialNetwork.Controllers
 {
+    [ServiceFilter(typeof(CheckUserBlockingFilter))]
     public class ProfileController : Controller
     {
         private readonly IStorage _storage;

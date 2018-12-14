@@ -48,7 +48,12 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
         public Users GetUser(string userName)
         {
             return context.Users.FromSql("SELECT * FROM Users WHERE Login = @p0 OR Email = @p0", parameters: new[] { userName }).FirstOrDefault();
-        } 
+        }
+
+        public Users GetUser(int userId)
+        {
+            return context.Users.FromSql("SELECT * FROM Users WHERE Id = @p0", userId).FirstOrDefault();
+        }
 
         public void AddUser(RegisterModel newUser)
         {
@@ -90,52 +95,6 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
             return (photoPath: profileModel.PhotoPath, name: profileModel.Name);
         }
 
-        public bool IsUserAdmin(string userName)
-        {
-            var user = GetUser(userName);
-            var permissions = context.UserAccessRights.FromSql("SELECT * FROM UserAccessRights WHERE UserAccessRights.UserId = @p0",
-                user.Id).FirstOrDefault();
-
-            return permissions != null ? true : false;
-        }
-
-        public bool IsUserAdmin(int userId)
-        {
-            var permissions = context.UserAccessRights.FromSql("SELECT * FROM UserAccessRights WHERE UserAccessRights.UserId = @p0", 
-                userId).FirstOrDefault();
-
-            return permissions != null ? true : false;
-        }
-
-        public bool GiveAdminPermission(int userId, int permissionId)
-        {
-            try
-            {
-                context.Database.ExecuteSqlCommand("AddUserAccessRightById @p0, @p1",
-                    userId, permissionId );
-
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public bool RemoveAdminPermission(int userId, int permissionId)
-        {
-            try
-            {
-                context.Database.ExecuteSqlCommand("RemoveAccessRight @p0, @p1",
-                    userId, permissionId );
-
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
 
         public List<ProfileModel> GetAllProfiles()
         {
@@ -154,7 +113,7 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
 
         public List<ProfileModel> GetAllProfilesWithoutCurrentUser(string userName)
         {
-            var users = context.Users.FromSql("SELECT * FROM Users WHERE NOT (Login = @p0 OR Email = @p0)", 
+            var users = context.Users.FromSql("SELECT * FROM Users WHERE NOT (Login = @p0 OR Email = @p0)",
                 parameters: new[] { userName });
 
             var profiles = new List<ProfileModel>();
@@ -216,5 +175,103 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
             return usersRelationship == null ? false : true;
 
         }
+
+        #region Admin Methods
+
+        public bool IsUserAdmin(string userName)
+        {
+            var user = GetUser(userName);
+            var permissions = context.UserAccessRights.FromSql("SELECT * FROM UserAccessRights WHERE UserAccessRights.UserId = @p0",
+                user.Id).FirstOrDefault();
+
+            return permissions != null ? true : false;
+        }
+
+        public bool IsUserAdmin(int userId)
+        {
+            var permissions = context.UserAccessRights.FromSql("SELECT * FROM UserAccessRights WHERE UserAccessRights.UserId = @p0", 
+                userId).FirstOrDefault();
+
+            return permissions != null ? true : false;
+        }
+
+        public bool GiveAdminPermission(int userId, int permissionId)
+        {
+            try
+            {
+                context.Database.ExecuteSqlCommand("AddUserAccessRightById @p0, @p1",
+                    userId, permissionId );
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool RemoveAdminPermission(int userId, int permissionId)
+        {
+            try
+            {
+                context.Database.ExecuteSqlCommand("RemoveAccessRight @p0, @p1",
+                    userId, permissionId );
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool CheckUserBlocking(string userName)
+        {
+            var user = GetUser(userName);
+            return user.IsBlocked;
+        }
+
+        public bool CheckUserBlocking(int userId)
+        {
+            var user = GetUser(userId);
+            return user.IsBlocked;
+        }
+
+        public bool BlockUser(int userId, int statusId, string blockedByUserName)
+        {
+            try
+            {
+                var user = GetUser(blockedByUserName);
+
+                if (user != null)
+                    context.Database.ExecuteSqlCommand("BlockUser @p0, @p1, @p2",
+                        userId, statusId, user.Id);
+                else
+                    context.Database.ExecuteSqlCommand("BlockUser @p0, @p1",
+                        userId, statusId);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool UnblockUser(int userId)
+        {
+            try
+            {
+                context.Database.ExecuteSqlCommand("UnblockUser @p0", userId);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        #endregion
     }
 }

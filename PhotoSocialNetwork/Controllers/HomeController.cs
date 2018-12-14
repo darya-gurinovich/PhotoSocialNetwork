@@ -24,7 +24,13 @@ namespace PhotoSocialNetwork.Controllers
         {
             return RedirectToAction("Index", "Profile");
         }
-        
+
+        [Authorize]
+        public IActionResult UserBlocked()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

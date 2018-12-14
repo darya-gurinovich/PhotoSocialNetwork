@@ -50,6 +50,7 @@ namespace PhotoSocialNetwork
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<CheckAdminFilter>();
+            services.AddScoped<CheckUserBlockingFilter>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }

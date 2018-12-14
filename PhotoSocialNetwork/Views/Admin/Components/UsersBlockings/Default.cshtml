@@ -1,0 +1,62 @@
+﻿@model List<PhotoSocialNetwork.ViewModels.ProfileModel>
+
+@inject PhotoSocialNetwork.Models.Storage.IStorage storage
+<div id="usersBlockingsContainer">
+@if (Model.Count == 0)
+{
+    <label>No users were found</label>
+}
+@foreach (var profile in Model)
+{
+    <div class="smallProfileInfo">
+        <div class="leftProfile">
+            <div class="smallAvatarUserBox">
+                <img src=@profile.PhotoPath style='height: 100%; width: 100%; object-fit: contain'>
+            </div>
+        </div>
+        <div class="form-group">
+            <a id="name @profile.UserId" asp-controller="Profile" asp-action="Index" asp-route-profileId=@profile.ProfileId><b>@profile.Name</b></a>
+            <p>@profile.DateOfBirth.ToShortDateString()</p>
+            <p>@profile.Email</p>
+            @if (!storage.CheckUserBlocking(profile.UserId))
+            {
+                <a id="blocking_@profile.UserId" href="#" onclick="blockUser(@profile.UserId)">Block User</a>
+            }
+            else
+            {
+                <a id="blocking_@profile.UserId" href="#" onclick="unblockUser(@profile.UserId)">Unblock User</a>
+            }
+        </div>
+    </div>
+}
+</div>
+
+<script>
+    function blockUser(userId) {
+        $.ajax({
+            url: '/Admin/BlockUser?userId=' + userId + '&statusId=1',
+            type: 'POST',
+            success: function (result) {
+                if (!result) { alert("Error in blocking the user"); return; }
+
+                var action = document.getElementById("blocking_" + userId)
+                action.onclick = function () { unblockUser(userId); }
+                action.innerHTML = "Unblock user"
+            }
+        });
+    }
+
+    function unblockUser(userId) {
+        $.ajax({
+            url: '/Admin/UnblockUser?userId=' + userId,
+            type: 'POST',
+            success: function (result) {
+                if (!result) { alert("Error in unbloking the user"); return; }
+
+                var action = document.getElementById("blocking_" + userId)
+                action.onclick = function () { unblockUser(userId); }
+                action.innerHTML = "Block User"
+            }
+        });
+    }
+</script>

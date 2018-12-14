@@ -29,5 +29,10 @@ namespace PhotoSocialNetwork.Models.Storage
         bool CheckIfUsersAreFriends(string userName, int userId);
 
         (string photoPath, string name) GetCurrentUserInfo(string userName);
+
+        bool CheckUserBlocking(string userName);
+        bool CheckUserBlocking(int userId);
+        bool BlockUser(int userId, int statusId, string blockedByUserName);
+        bool UnblockUser(int userId);
     }
 }

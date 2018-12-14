@@ -12,6 +12,7 @@ using PhotoSocialNetwork.ViewModels;
 namespace PhotoSocialNetwork.Controllers
 {
     [Authorize]
+    [ServiceFilter(typeof(CheckUserBlockingFilter))]
     [ServiceFilter(typeof(CheckAdminFilter))]
     public class AdminController : Controller
     {
@@ -28,7 +29,7 @@ namespace PhotoSocialNetwork.Controllers
             {
                 tab = new TabViewModel
                 {
-                    ActiveTab = Tab.Users
+                    ActiveTab = Tab.UsersPermissions
                 };
             }
 
@@ -41,8 +42,14 @@ namespace PhotoSocialNetwork.Controllers
 
             switch (tabname)
             {
-                case "Users":
-                    tab.ActiveTab = Tab.Users;
+                case "UsersPermissions":
+                    tab.ActiveTab = Tab.UsersPermissions;
+                    break;
+                case "UsersBlockings":
+                    tab.ActiveTab = Tab.UsersBlockings;
+                    break;
+                case "PostsBlockings":
+                    tab.ActiveTab = Tab.PostsBlockings;
                     break;
             }
 
@@ -61,9 +68,31 @@ namespace PhotoSocialNetwork.Controllers
             return Json(responce);
         }
 
-        public IActionResult UsersComponent(string filter)
+        public IActionResult BlockUser(int userId, int statusId)
         {
-            return ViewComponent("PhotoSocialNetwork.ViewComponents.Admin.Users", filter);
+            var responce = _storage.BlockUser(userId, statusId, User.Identity.Name);
+            return Json(responce);
+        }
+
+        public IActionResult UnblockUser(int userId)
+        {
+            var responce = _storage.UnblockUser(userId);
+            return Json(responce);
+        }
+
+        public IActionResult UsersPermissionsComponent(string filter)
+        {
+            return ViewComponent("PhotoSocialNetwork.ViewComponents.Admin.UsersPermissions", filter);
+        }
+
+        public IActionResult UsersBlockingsComponent(string filter)
+        {
+            return ViewComponent("PhotoSocialNetwork.ViewComponents.Admin.UsersBlockings", filter);
+        }
+
+        public IActionResult PostsBlockingsComponent(string filter)
+        {
+            return ViewComponent("PhotoSocialNetwork.ViewComponents.Admin.PostsBlockings", filter);
         }
 
     }

@@ -13,6 +13,8 @@ namespace PhotoSocialNetwork.ViewModels
     public enum Tab
     {
         Friends,
-        Users
+        UsersPermissions,
+        UsersBlockings,
+        PostsBlockings
     }
 }
