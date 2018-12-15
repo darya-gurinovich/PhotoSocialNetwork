@@ -36,5 +36,16 @@ namespace PhotoSocialNetwork.Controllers
             _storage.CreatePost(post, User.Identity.Name, photo);
             return RedirectToAction("Index");
         }
+
+        public IActionResult AddComment(int postId, string text)
+        {
+            var success = _storage.AddComment(postId, User.Identity.Name, text);
+            return Json(success);
+        }
+
+        public IActionResult CommentsComponent(int postId)
+        {
+            return ViewComponent("PhotoSocialNetwork.ViewComponents.Feed.Comments", postId);
+        }
     }
 }

@@ -1,0 +1,45 @@
+﻿@model List<PhotoSocialNetwork.ViewModels.CommentViewModel>
+
+<div id="postsContainer">
+    @if (Model.Count == 0)
+    {
+        <label style="text-align: center;">No comments were found</label>
+    }
+    @foreach (var comment in Model)
+
+    {<div class="review">
+
+    <div>
+        <img width="50" style="background:#7b7b82;" class="reviewProfilePhoto" src=@comment.UserPhotoPath>
+        <div>
+            <p class="profile_name">
+                <s></s>
+                <a asp-controller="Profile" asp-action="Index" asp-route-profileId=@comment.ProfileId><b>@comment.UserName</b></a>
+            </p>
+        </div>
+    </div>
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <div>
+                        <p>
+                            <span>
+                                @comment.Text
+                            </span>
+                        </p>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <span class="reviewDate">@comment.CommentDate.ToString("MM/dd/yyyy hh:mm tt")</span>
+
+</div>
+
+    }
+</div>
+
+<script>
+</script>

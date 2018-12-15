@@ -1,5 +1,6 @@
 ﻿@model List<PhotoSocialNetwork.ViewModels.PostViewModel>
 
+@inject PhotoSocialNetwork.Models.Storage.IStorage storage;
 <div id="postsContainer">
     @if (Model.Count == 0)
     {
@@ -7,43 +8,40 @@
     }
     @foreach (var profile in Model)
     {
-        <div class="row review profileInfo" style="width: 80%; margin: 0 auto; margin-bottom: 10px">
-            <div class="leftProfile">
-                <img id="posterImage" src="@profile.PhotoPath" style='width: 200px; height: 200px; object-fit: contain; display: block; margin: 0 auto;'>
+        <div style="background:#7b7b82; padding: 10px; margin-bottom: 10px">
+            <div class="row review profileInfo" style="width: 80%; margin: 0 auto; margin-bottom: 10px">
+                <div class="leftProfile">
+                    <img id="posterImage" src="@profile.PhotoPath" style='width: 200px; height: 200px; object-fit: contain; display: block; margin: 0 auto;'>
+                </div>
+                <div class="form-group">
+                    <label style="word-break: break-all;">@profile.Text</label>
+                </div>
+
             </div>
-            <div class="form-group">
-                <label>@profile.Text</label>
+
+            <div class="reviewInputContainer" style="height:140px">
+                <textarea id="reviewText" rows="2" class="reviewInput"></textarea>
+                <input type="button" style="background:#7b7b82;" onclick="addReview(@profile.PostId)" title="Add review" value="Add comment" class="btn reviewButton" />
+            </div>
+
+            <div id="reviewsContainer">
+                @await Component.InvokeAsync("PhotoSocialNetwork.ViewComponents.Feed.Comments", new { postId = profile.PostId })
             </div>
         </div>
     }
 </div>
 
 <script>
-    function addAdminPermission(userId) {
+    function addReview(id) {
+        if (!$.trim($("#reviewText").val())) { alert("No comment was writen. Can't add the comment."); return; }
+
         $.ajax({
-            url: '/Admin/AddAdminPermission?userId=' + userId + '&permissionId=1',
+            url: 'Feed/AddComment?postId=' + id + '&text=' + $('#reviewText').val(),
             type: 'POST',
             success: function (result) {
-                if (!result) { alert("Error in adding the user permission"); return; }
-
-                var action = document.getElementById("permission_" + userId)
-                action.onclick = function () { removeAdminPermission(userId); }
-                action.innerHTML = "Remove Admin Permission"
+                $('#reviewText').val("");
+                $.get("/Feed/CommentsComponent?postId=" + id, function (data) { $("#reviewsContainer").html(data); });
             }
-        });
-    }
-
-    function removeAdminPermission(userId) {
-        $.ajax({
-            url: '/Admin/RemoveAdminPermission?userId=' + userId + '&permissionId=1',
-            type: 'POST',
-            success: function (result) {
-                if (!result) { alert("Error in removing the user permission"); return; }
-
-                var action = document.getElementById("permission_" + userId)
-                action.onclick = function () { addAdminPermission(userId); }
-                action.innerHTML = "Add Admin Permission"
-            }
-        });
+        });  
     }
 </script>

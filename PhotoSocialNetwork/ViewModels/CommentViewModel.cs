@@ -6,27 +6,25 @@ using System.Threading.Tasks;
 
 namespace PhotoSocialNetwork.ViewModels
 {
-    public class PostViewModel
+    public class CommentViewModel
     {
-        public int PostId { get; set; }
+        public int CommentId { get; set; }
         public string Text { get; set; }
         public int ProfileId { get; set; }
         public string UserPhotoPath { get; set; }
         public string UserName { get; set; }
-        public DateTime PostDate { get; set; }
+        public DateTime CommentDate { get; set; }
         public string PhotoPath { get; set; }
 
-        public PostViewModel() { }
+        public CommentViewModel() { }
 
-        public PostViewModel(Post post, ProfileModel profile)
+        public CommentViewModel(Comment comment, ProfileModel profile)
         {
-            PostId = post.PostId;
             ProfileId = profile.ProfileId;
-            Text = post.Text;
+            Text = comment.Text;
             UserName = profile.Name;
             UserPhotoPath = profile.PhotoPath;
-            PostDate = post.CreationDate;
-            PhotoPath = GetPhotoFromByteArray(post.Photo);
+            CommentDate = comment.CreationDate;
         }
 
         private string GetPhotoFromByteArray(byte[] photoArray)

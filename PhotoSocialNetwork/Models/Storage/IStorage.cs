@@ -56,5 +56,8 @@ namespace PhotoSocialNetwork.Models.Storage
         void CreatePost(PostViewModel postModel, string userName, IFormFile photo);
         List<PostViewModel> GetUserPosts(string userName);
         List<PostViewModel> GetUserPosts(int userId);
+
+        List<CommentViewModel> GetPostComments(int postId);
+        bool AddComment(int postId, string userName, string text);
     }
 }

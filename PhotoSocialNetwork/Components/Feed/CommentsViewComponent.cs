@@ -4,20 +4,20 @@ using PhotoSocialNetwork.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PhotoSocialNetwork.ViewComponents.Admin
+namespace PhotoSocialNetwork.ViewComponents.Feed
 {
-    public class PostBlockingLogs : ViewComponent
+    public class CommentsViewComponent : ViewComponent
     {
         private readonly IStorage _storage;
 
-        public PostBlockingLogs(IStorage storage)
+        public CommentsViewComponent(IStorage storage)
         {
             _storage = storage;
         }
 
-        public IViewComponentResult Invoke(string filter)
+        public IViewComponentResult Invoke(int postId)
         {
-            return View(_storage.GetPostBlockingLogs());
+            return View(_storage.GetPostComments(postId));
         }
     }
 }

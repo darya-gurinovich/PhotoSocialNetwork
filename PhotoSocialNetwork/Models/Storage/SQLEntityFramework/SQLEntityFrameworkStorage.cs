@@ -378,6 +378,38 @@ namespace PhotoSocialNetwork.Models.Storage.EntityFramework
 
             return postsModels;
         }
+
+
+        public List<CommentViewModel> GetPostComments(int postId)
+        {
+            var comments = context.Comment.FromSql("SELECT * FROM Comment C WHERE C.PostId = @p0 ORDER BY CreationDate DESC", postId).ToList();
+            var commentsModels = new List<CommentViewModel>();
+            foreach (var comment in comments)
+            {
+                var profile = GetProfileModelById(comment.UserId);
+                commentsModels.Add(new CommentViewModel(comment, profile));
+            }
+
+            return commentsModels;
+        }
+
+
+        public bool AddComment(int postId, string userName, string text)
+        {
+            try
+            {
+                var user = GetUser(userName);
+
+                context.Database.ExecuteSqlCommand("AddCommentToPost @p0, @p1, @p2", user.Id, text, postId);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+            
+        }
         #endregion
 
         private byte[] GetImageFromFile(IFormFile image)
