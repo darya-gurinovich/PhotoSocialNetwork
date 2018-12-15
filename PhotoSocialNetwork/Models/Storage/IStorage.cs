@@ -56,10 +56,13 @@ namespace PhotoSocialNetwork.Models.Storage
         void CreatePost(PostViewModel postModel, string userName, IFormFile photo);
         List<PostViewModel> GetUserPosts(string userName);
         List<PostViewModel> GetUserPosts(int userId);
-
+        
         bool CheckPostBlocking(int postId);
         bool BlockPost(int postId, int statusId, string blockedByUserName);
         bool UnblockPost(int postId);
         List<PostViewModel> GetPosts();
+
+        List<CommentViewModel> GetPostComments(int postId);
+        bool AddComment(int postId, string userName, string text);
     }
 }

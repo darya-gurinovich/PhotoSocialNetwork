@@ -43,7 +43,7 @@
             </div>
             <div class="modal-body">
                 <input id="userId" type="hidden" />
-                <select style="width: 100%;">
+                <select id="blockingStatus" style="width: 100%;">
                     @foreach (var blocking in Model.blockings)
                     {
                         @if(blocking.BlockingName != "Unblocked" && blocking.BlockingName != "Blocked for entering a wrong password several times") { 
@@ -70,7 +70,7 @@
         $('#blockUserModal').modal('toggle');
 
         $.ajax({
-            url: '/Admin/BlockUser?userId=' + userId + '&statusId=1',
+            url: '/Admin/BlockUser?userId=' + userId + '&statusId=' + $("#blockingStatus").val(),
             type: 'POST',
             success: function (result) {
                 if (!result) { alert("Error in blocking the user"); return; }
